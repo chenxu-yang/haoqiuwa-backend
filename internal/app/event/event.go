@@ -86,8 +86,24 @@ func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
 		log.Println(err)
 		return nil, err
 	}
+	picLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%s/%s/p%d", courtID, today, hour))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	// order by minute
+	sort.Slice(allLinks, func(i, j int) bool {
+		ssi := strings.Split(allLinks[i], "/")
+		ssj := strings.Split(allLinks[j], "/")
+		return strings.Compare(ssi[len(ssi)-1], ssj[len(ssj)-1]) < 0
+	})
+	sort.Slice(picLinks, func(i, j int) bool {
+		ssi := strings.Split(picLinks[i], "/")
+		ssj := strings.Split(picLinks[j], "/")
+		return strings.Compare(ssi[len(ssi)-1], ssj[len(ssj)-1]) < 0
+	})
 	eventDetail := &EventDetail{Videos: []*Video{}}
-	for _, link := range allLinks {
+	for index, link := range allLinks {
 		links := strings.Split(link, "/")
 		minuteString := strings.Split(strings.Split(links[len(links)-1], "-")[1], ".")[0]
 		minute, _ := strconv.Atoi(minuteString)
@@ -95,8 +111,7 @@ func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
 			StartMinute: int32(minute),
 			EndMinute:   int32(minute + 5),
 			Url:         link,
-			PicUrl: "cloud://prod-2gicsblt193f5dc8.7072-prod-2gicsblt193f5dc8-1318337180/highlight/court10/testcover." +
-				"png",
+			PicUrl:      picLinks[index],
 		})
 	}
 	eventDetail.Hour = int32(hour)
