@@ -19,7 +19,6 @@ func Init() error {
 	user := os.Getenv("MYSQL_USERNAME")
 	pwd := os.Getenv("MYSQL_PASSWORD")
 	addr := os.Getenv("MYSQL_ADDRESS")
-
 	dataBase := os.Getenv("MYSQL_DATABASE")
 	if dataBase == "" {
 		dataBase = "haoqiuwa"

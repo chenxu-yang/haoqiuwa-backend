@@ -40,13 +40,12 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 		log.Println(err)
 		return nil, err
 	}
-	print(allLinks)
 	// get hours by links, links are like 4042-prod/highlight/court1/20210101/10-32.mp4, 10-32 means hour and minute
 	distinctHours := make(map[int]bool)
 	for _, link := range allLinks {
 		links := strings.Split(link, "/")
 		hour := strings.Split(links[len(links)-1], "-")[0]
-		hourInt, _ := strconv.Atoi(hour)
+		hourInt, _ := strconv.Atoi(hour[1:])
 		distinctHours[hourInt] = true
 	}
 	// get hour by order
@@ -55,7 +54,7 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 		hours = append(hours, hour)
 	}
 	// sort hours
-	sort.Slice(hours, func(i, j int) bool { return hours[i] < hours[j] })
+	sort.Slice(hours, func(i, j int) bool { return hours[i] > hours[j] })
 	// get events by hours
 	for _, hour := range hours {
 		results = append(results, Event{StartTime: int32(hour), EndTime: int32(hour + 1), CourtName: courtID, Status: 0})

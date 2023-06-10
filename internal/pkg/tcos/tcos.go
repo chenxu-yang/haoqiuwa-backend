@@ -32,7 +32,7 @@ func GetCosFileList(prefix string) ([]string, error) {
 	err = json.NewDecoder(resp.Body).Decode(temAuth)
 	if err != nil {
 		log.Print(err)
-		return nil, err
+		//return nil, err
 	}
 	u, _ := url.Parse("https://7072-prod-2gicsblt193f5dc8-1318337180.cos.ap-shanghai.myqcloud.com")
 	b := &cos.BaseURL{BucketURL: u}
@@ -48,7 +48,7 @@ func GetCosFileList(prefix string) ([]string, error) {
 		},
 	})
 	opt := &cos.BucketGetOptions{
-		Prefix:  prefix + "n",
+		Prefix:  prefix + "v",
 		MaxKeys: 100,
 	}
 	cos, _, err := client.Bucket.Get(context.Background(), opt)
