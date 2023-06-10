@@ -50,7 +50,7 @@ func TestService_GetEvents(t *testing.T) {
 	}{
 		{
 			name:    "case1",
-			args:    args{courtID: "1"},
+			args:    args{courtID: "10"},
 			wantErr: false,
 		},
 	}

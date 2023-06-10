@@ -40,6 +40,7 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 		log.Println(err)
 		return nil, err
 	}
+	print(allLinks)
 	// get hours by links, links are like 4042-prod/highlight/court1/20210101/10-32.mp4, 10-32 means hour and minute
 	distinctHours := make(map[int]bool)
 	for _, link := range allLinks {
