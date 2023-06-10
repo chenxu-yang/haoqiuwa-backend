@@ -37,6 +37,8 @@ type EventDetail struct {
 }
 
 type Video struct {
+	IsFirstHalf bool   `json:"is_first_half"`
+	IsCollected bool   `json:"is_collected"`
 	StartMinute int32  `json:"start_minute"`
 	EndMinute   int32  `json:"end_minute"`
 	Url         string `json:"url"`
@@ -54,12 +56,12 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 		return nil, err
 	}
 	// get hours by links, links are like 4042-prod/highlight/court1/20210101/10-32.mp4, 10-32 means hour and minute
-	distinctHours := make(map[int]bool)
+	distinctHours := make(map[int]int)
 	for _, link := range allLinks {
 		links := strings.Split(link, "/")
 		hour := strings.Split(links[len(links)-1], "-")[0]
 		hourInt, _ := strconv.Atoi(hour[1:])
-		distinctHours[hourInt] = true
+		distinctHours[hourInt] += 1
 	}
 	// get hour by order
 	hours := make([]int, 0)
@@ -72,8 +74,7 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 	for _, hour := range hours {
 		results = append(results, Event{StartTime: int32(hour), EndTime: int32(hour + 1), CourtName: courtID, Status: 0})
 	}
-	// if last hour is 5min before time now, set status to 1, if now is 10-03, last hour is 10-00, set status to 1
-	if len(hours) > 0 && time.Now().Hour() == hours[len(hours)-1]+1 && time.Now().Minute() < 6 {
+	if distinctHours[hours[len(hours)-1]] < 6 {
 		results[len(results)-1].Status = 1
 	}
 	return results, nil
@@ -110,12 +111,14 @@ func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
 		eventDetail.Videos = append(eventDetail.Videos, &Video{
 			StartMinute: int32(minute),
 			EndMinute:   int32(minute + 5),
+			IsCollected: false,
+			IsFirstHalf: minute < 30,
 			Url:         link,
 			PicUrl:      picLinks[index],
 		})
 	}
 	eventDetail.Hour = int32(hour)
-	if time.Now().Hour() == hour+1 && time.Now().Minute() < 6 {
+	if len(eventDetail.Videos) < 6 {
 		eventDetail.Status = 1
 	}
 	return eventDetail, nil
