@@ -3,18 +3,29 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"wxcloudrun-golang/db"
-	"wxcloudrun-golang/service"
+	"wxcloudrun-golang/internal/app/service"
+	"wxcloudrun-golang/internal/pkg/db"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	if err := db.Init(); err != nil {
 		panic(fmt.Sprintf("mysql init failed with %+v", err))
 	}
+	service := service.NewService()
+	router := gin.Default()
+	router.GET("/auth/login", service.WeChatLogin)
+	router.GET("/courts", service.GetCounts)
+	router.GET("/courts/:id", service.GetCountInfo)
+	router.GET("/courts/:id/judge", service.JudgeLocation)
 
-	http.HandleFunc("/", service.IndexHandler)
-	http.HandleFunc("/api/count", service.CounterHandler)
+	router.GET("/events", service.GetEvents)
+	router.POST("/collects", service.ToggleCollectVideo)
+	router.GET("/user/collects", service.GetCollectVideos)
 
-	log.Fatal(http.ListenAndServe(":80", nil))
+	router.GET("/user/events/:id", service.GetEventInfo)
+	router.GET("/recommend/videos", service.GetRecommendVideos)
+
+	log.Fatal(router.Run())
 }
