@@ -122,9 +122,10 @@ func (s *Service) GetEvents(c *gin.Context) {
 
 // GetEventInfo 获取事件
 func (s *Service) GetEventInfo(c *gin.Context) {
-	eventID := c.Param("id")
-	eventIDInt, _ := strconv.Atoi(eventID)
-	event, err := s.EventService.GetEventInfo(int32(eventIDInt))
+	courtID := c.Query("court")
+	hour := c.Query("hour")
+	hourInt, _ := strconv.Atoi(hour)
+	event, err := s.EventService.GetEventInfo(courtID, hourInt)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

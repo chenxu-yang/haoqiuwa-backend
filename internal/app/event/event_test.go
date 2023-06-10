@@ -64,3 +64,30 @@ func TestService_GetEvents(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GetEventInfo(t *testing.T) {
+	type args struct {
+		courtID string
+		hour    int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "case1",
+			args:    args{courtID: "10", hour: 10},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := s.GetEventInfo(tt.args.courtID, tt.args.hour)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetEventInfo() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
