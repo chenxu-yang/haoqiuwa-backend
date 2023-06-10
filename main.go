@@ -27,5 +27,6 @@ func main() {
 	router.GET("/user/events/:id", service.GetEventInfo)
 	router.GET("/recommend/videos", service.GetRecommendVideos)
 
+	// 8080 port
 	log.Fatal(router.Run())
 }
