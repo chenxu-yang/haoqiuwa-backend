@@ -40,6 +40,7 @@ type Video struct {
 	StartMinute int32  `json:"start_minute"`
 	EndMinute   int32  `json:"end_minute"`
 	Url         string `json:"url"`
+	picUrl      string `json:"pic_url"`
 }
 
 func (s *Service) GetEvents(courtID string) ([]Event, error) {
@@ -94,6 +95,8 @@ func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
 			StartMinute: int32(minute),
 			EndMinute:   int32(minute + 5),
 			Url:         link,
+			picUrl: "cloud://prod-2gicsblt193f5dc8.7072-prod-2gicsblt193f5dc8-1318337180/highlight/court10/testcover." +
+				"png",
 		})
 	}
 	eventDetail.Hour = int32(hour)
