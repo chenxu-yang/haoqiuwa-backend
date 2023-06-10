@@ -33,7 +33,7 @@ type Event struct {
 type EventDetail struct {
 	Status      int32          `json:"status"`
 	Hour        int32          `json:"hour"`
-	VideoSeries []*VideoSeries `json:"videos"`
+	VideoSeries []*VideoSeries `json:"video_series"`
 }
 
 type VideoSeries struct {
@@ -43,7 +43,6 @@ type VideoSeries struct {
 }
 
 type Video struct {
-	IsFirstHalf bool   `json:"is_first_half"`
 	IsCollected bool   `json:"is_collected"`
 	Url         string `json:"url"`
 	PicUrl      string `json:"pic_url"`
