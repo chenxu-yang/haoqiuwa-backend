@@ -31,16 +31,20 @@ type Event struct {
 }
 
 type EventDetail struct {
-	Status int32    `json:"status"`
-	Hour   int32    `json:"hour"`
-	Videos []*Video `json:"videos"`
+	Status      int32          `json:"status"`
+	Hour        int32          `json:"hour"`
+	VideoSeries []*VideoSeries `json:"videos"`
+}
+
+type VideoSeries struct {
+	StartMinute int32    `json:"start_minute"`
+	EndMinute   int32    `json:"end_minute"`
+	Videos      []*Video `json:"videos"`
 }
 
 type Video struct {
 	IsFirstHalf bool   `json:"is_first_half"`
 	IsCollected bool   `json:"is_collected"`
-	StartMinute int32  `json:"start_minute"`
-	EndMinute   int32  `json:"end_minute"`
 	Url         string `json:"url"`
 	PicUrl      string `json:"pic_url"`
 }
@@ -103,23 +107,40 @@ func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
 		ssj := strings.Split(picLinks[j], "/")
 		return strings.Compare(ssi[len(ssi)-1], ssj[len(ssj)-1]) < 0
 	})
-	eventDetail := &EventDetail{Videos: []*Video{}}
-	for index, link := range allLinks {
-		links := strings.Split(link, "/")
-		minuteString := strings.Split(strings.Split(links[len(links)-1], "-")[1], ".")[0]
-		minute, _ := strconv.Atoi(minuteString)
-		eventDetail.Videos = append(eventDetail.Videos, &Video{
-			StartMinute: int32(minute),
-			EndMinute:   int32(minute + 5),
-			IsCollected: false,
-			IsFirstHalf: minute < 30,
-			Url:         link,
-			PicUrl:      picLinks[index],
-		})
+	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
+	firstHalfVideo := &VideoSeries{}
+	secondHalfVideo := &VideoSeries{}
+	for index := range allLinks {
+		//links := strings.Split(link, "/")
+		//minuteString := strings.Split(strings.Split(links[len(links)-1], "-")[1], ".")[0]
+		//minute, _ := strconv.Atoi(minuteString)
+		if index <= 2 {
+			firstHalfVideo.StartMinute = 0
+			firstHalfVideo.EndMinute = 30
+			firstHalfVideo.Videos = append(firstHalfVideo.Videos, &Video{
+				IsCollected: false,
+				Url:         allLinks[index],
+				PicUrl:      picLinks[index],
+			})
+		} else {
+			secondHalfVideo.StartMinute = 30
+			secondHalfVideo.EndMinute = 60
+			secondHalfVideo.Videos = append(secondHalfVideo.Videos, &Video{
+				IsCollected: false,
+				Url:         allLinks[index],
+				PicUrl:      picLinks[index],
+			})
+		}
 	}
 	eventDetail.Hour = int32(hour)
-	if len(eventDetail.Videos) < 6 {
+	if len(allLinks) < 6 {
 		eventDetail.Status = 1
+	}
+	if len(firstHalfVideo.Videos) > 0 {
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
+	}
+	if len(secondHalfVideo.Videos) > 0 {
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
 	}
 	return eventDetail, nil
 }
