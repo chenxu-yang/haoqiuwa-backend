@@ -32,7 +32,7 @@ func GetCosFileList(prefix string) ([]string, error) {
 	err = json.NewDecoder(resp.Body).Decode(temAuth)
 	if err != nil {
 		log.Print(err)
-		return nil, err
+		//return nil, err
 	}
 	u, _ := url.Parse("https://7072-prod-2gicsblt193f5dc8-1318337180.cos.ap-shanghai.myqcloud.com")
 	b := &cos.BaseURL{BucketURL: u}
@@ -45,8 +45,6 @@ func GetCosFileList(prefix string) ([]string, error) {
 			SecretKey:    temAuth.TmpSecretKey,
 			SessionToken: temAuth.Token,
 			Expire:       temAuth.ExpiredTime,
-			//SecretID:  "AKIDeAUpvpVwAByWVFn7C3i9NSSFk195oGTW",
-			//SecretKey: "vfS3RbWDft5HH4g5HFMMCpSwEI7j7G9q",
 		},
 	})
 	opt := &cos.BucketGetOptions{

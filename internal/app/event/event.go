@@ -76,7 +76,9 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 	for _, hour := range hours {
 		results = append(results, Event{StartTime: int32(hour), EndTime: int32(hour + 1), CourtName: courtID, Status: 0})
 	}
-	if distinctHours[hours[len(hours)-1]] < 6 {
+	if time.Now().Hour() == hours[0]+1 {
+		results[0].Status = 1
+	} else if time.Now().Hour() == hours[0]+1 && time.Minute < 10 {
 		results[0].Status = 1
 	}
 	return results, nil
