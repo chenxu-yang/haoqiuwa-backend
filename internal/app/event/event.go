@@ -77,7 +77,7 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 		results = append(results, Event{StartTime: int32(hour), EndTime: int32(hour + 1), CourtName: courtID, Status: 0})
 	}
 	if distinctHours[hours[len(hours)-1]] < 6 {
-		results[len(results)-1].Status = 1
+		results[0].Status = 1
 	}
 	return results, nil
 }

@@ -45,6 +45,8 @@ func GetCosFileList(prefix string) ([]string, error) {
 			SecretKey:    temAuth.TmpSecretKey,
 			SessionToken: temAuth.Token,
 			Expire:       temAuth.ExpiredTime,
+			//SecretID:  "AKIDeAUpvpVwAByWVFn7C3i9NSSFk195oGTW",
+			//SecretKey: "vfS3RbWDft5HH4g5HFMMCpSwEI7j7G9q",
 		},
 	})
 	opt := &cos.BucketGetOptions{
