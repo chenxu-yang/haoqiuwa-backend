@@ -77,7 +77,7 @@ func TestService_GetEventInfo(t *testing.T) {
 	}{
 		{
 			name:    "case1",
-			args:    args{courtID: "10", hour: 10},
+			args:    args{courtID: "10", hour: 11},
 			wantErr: false,
 		},
 	}

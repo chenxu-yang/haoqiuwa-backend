@@ -31,15 +31,14 @@ type Event struct {
 }
 
 type EventDetail struct {
-	Status      int32          `json:"status"`
-	Hour        int32          `json:"hour"`
 	VideoSeries []*VideoSeries `json:"video_series"`
 }
 
 type VideoSeries struct {
-	StartMinute int32    `json:"start_minute"`
-	EndMinute   int32    `json:"end_minute"`
-	Videos      []*Video `json:"videos"`
+	StartTime string   `json:"start_time"`
+	EndTime   string   `json:"end_time"`
+	Status    int32    `json:"status"`
+	Videos    []*Video `json:"videos"`
 }
 
 type Video struct {
@@ -114,16 +113,16 @@ func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
 		//minuteString := strings.Split(strings.Split(links[len(links)-1], "-")[1], ".")[0]
 		//minute, _ := strconv.Atoi(minuteString)
 		if index <= 2 {
-			firstHalfVideo.StartMinute = 0
-			firstHalfVideo.EndMinute = 30
+			firstHalfVideo.StartTime = fmt.Sprintf("%d:%s", hour, "00")
+			firstHalfVideo.EndTime = fmt.Sprintf("%d:%d", hour, 30)
 			firstHalfVideo.Videos = append(firstHalfVideo.Videos, &Video{
 				IsCollected: false,
 				Url:         allLinks[index],
 				PicUrl:      picLinks[index],
 			})
 		} else {
-			secondHalfVideo.StartMinute = 30
-			secondHalfVideo.EndMinute = 60
+			secondHalfVideo.StartTime = fmt.Sprintf("%d:%d", hour, 30)
+			secondHalfVideo.EndTime = fmt.Sprintf("%d:%d", hour, 60)
 			secondHalfVideo.Videos = append(secondHalfVideo.Videos, &Video{
 				IsCollected: false,
 				Url:         allLinks[index],
@@ -131,14 +130,17 @@ func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
 			})
 		}
 	}
-	eventDetail.Hour = int32(hour)
-	if len(allLinks) < 6 {
-		eventDetail.Status = 1
-	}
 	if len(firstHalfVideo.Videos) > 0 {
+		if len(firstHalfVideo.Videos) < 3 {
+			firstHalfVideo.Status = 1
+		}
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
+
 	}
 	if len(secondHalfVideo.Videos) > 0 {
+		if len(secondHalfVideo.Videos) < 3 {
+			secondHalfVideo.Status = 1
+		}
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
 	}
 	return eventDetail, nil
