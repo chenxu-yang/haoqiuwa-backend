@@ -69,6 +69,7 @@ func TestService_GetEventInfo(t *testing.T) {
 	type args struct {
 		courtID string
 		hour    int
+		openID  string
 	}
 	tests := []struct {
 		name    string
@@ -77,13 +78,13 @@ func TestService_GetEventInfo(t *testing.T) {
 	}{
 		{
 			name:    "case1",
-			args:    args{courtID: "10", hour: 12},
+			args:    args{courtID: "10", hour: 12, openID: "oueu25X3eun7K9zJ6UpCUQiEO0yc"},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := s.GetEventInfo(tt.args.courtID, tt.args.hour)
+			_, err := s.GetEventInfo(tt.args.courtID, tt.args.hour, tt.args.openID)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetEventInfo() error = %v, wantErr %v", err, tt.wantErr)
 				return
