@@ -71,7 +71,7 @@ func (s *Service) ToggleCollectVideo(c *gin.Context) {
 		c.JSON(400, err.Error())
 		return
 	}
-	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, newCollect.FileID)
+	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, newCollect.FileID, newCollect.PicURL)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -122,10 +122,11 @@ func (s *Service) GetEvents(c *gin.Context) {
 
 // GetEventInfo 获取事件
 func (s *Service) GetEventInfo(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
 	courtID := c.Query("court")
 	hour := c.Query("hour")
 	hourInt, _ := strconv.Atoi(hour)
-	event, err := s.EventService.GetEventInfo(courtID, hourInt)
+	event, err := s.EventService.GetEventInfo(courtID, hourInt, openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

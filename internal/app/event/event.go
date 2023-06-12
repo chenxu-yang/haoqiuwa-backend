@@ -12,9 +12,10 @@ import (
 )
 
 type Service struct {
-	EventDao *model.Event
-	VideoDao *model.Video
-	CourtDao *model.Court
+	EventDao   *model.Event
+	VideoDao   *model.Video
+	CourtDao   *model.Court
+	CollectDao *model.Collect
 }
 
 func NewService() *Service {
@@ -84,7 +85,7 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 	return results, nil
 }
 
-func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
+func (s *Service) GetEventInfo(courtID string, hour int, openID string) (*EventDetail, error) {
 	today := time.Now().Format("20060102")
 	allLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%s/%s/v%d", courtID, today, hour))
 	if err != nil {
@@ -117,16 +118,32 @@ func (s *Service) GetEventInfo(courtID string, hour int) (*EventDetail, error) {
 		if index <= 2 {
 			firstHalfVideo.StartTime = fmt.Sprintf("%d:%s", hour, "00")
 			firstHalfVideo.EndTime = fmt.Sprintf("%d:%d", hour, 30)
+			isCollected := false
+			collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: allLinks[index]})
+			if err != nil {
+				return nil, err
+			}
+			if len(collects) > 0 {
+				isCollected = true
+			}
 			firstHalfVideo.Videos = append(firstHalfVideo.Videos, &Video{
-				IsCollected: false,
+				IsCollected: isCollected,
 				Url:         allLinks[index],
 				PicUrl:      picLinks[index],
 			})
 		} else {
 			secondHalfVideo.StartTime = fmt.Sprintf("%d:%d", hour, 30)
 			secondHalfVideo.EndTime = fmt.Sprintf("%d:%d", hour, 60)
+			isCollected := false
+			collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: allLinks[index]})
+			if err != nil {
+				return nil, err
+			}
+			if len(collects) > 0 {
+				isCollected = true
+			}
 			secondHalfVideo.Videos = append(secondHalfVideo.Videos, &Video{
-				IsCollected: false,
+				IsCollected: isCollected,
 				Url:         allLinks[index],
 				PicUrl:      picLinks[index],
 			})
