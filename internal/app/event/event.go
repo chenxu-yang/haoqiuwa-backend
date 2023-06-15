@@ -109,9 +109,10 @@ func (s *Service) GetEventInfo(courtID string, hour int, openID string) (*EventD
 		return strings.Compare(ssi[len(ssi)-1], ssj[len(ssj)-1]) < 0
 	})
 	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
-	firstHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "00"), EndTime: fmt.Sprintf("%d:%d", hour, 30)}
-	secondHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "30"), EndTime: fmt.Sprintf("%d:%d", hour,
-		60)}
+	firstHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "00"), EndTime: fmt.Sprintf("%d:%d", hour,
+		30)}
+	secondHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "30"), EndTime: fmt.Sprintf("%d:%s", hour+1,
+		"00")}
 	for index := range allLinks {
 		isCollected := false
 		collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: allLinks[index]})
