@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 	"wxcloudrun-golang/internal/pkg/model"
@@ -47,12 +48,23 @@ func (s *Service) WXLogin(openid string, cloudID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer resp.Body.Close()
+	bodys, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return false, err
+	}
+	fmt.Println(string(bodys))
+	// print response
+	fmt.Println(resp)
 	// 解析http请求中body 数据到我们定义的结构体中
 	wxResp := WXLoginResp{}
 	decoder := json.NewDecoder(resp.Body)
 	if err := decoder.Decode(&wxResp); err != nil {
 		return false, err
 	}
+	// print data
+	fmt.Println(wxResp)
 	if wxResp.DataList != nil && len(wxResp.DataList) > 0 && wxResp.DataList[0].Data.PhoneNumber == "" {
 		_, err = s.UserDao.Create(&model.User{
 			OpenID:      openid,
