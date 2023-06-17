@@ -15,7 +15,7 @@ func main() {
 	}
 	service := service.NewService()
 	router := gin.Default()
-	router.GET("/auth/login", service.WeChatLogin)
+	router.POST("/auth/login", service.WeChatLogin)
 	router.GET("/courts", service.GetCounts)
 	router.GET("/courts/:id", service.GetCountInfo)
 	router.GET("/courts/:id/judge", service.JudgeLocation)
@@ -26,6 +26,7 @@ func main() {
 	router.GET("/user/collects", service.GetCollectVideos)
 
 	router.GET("/recommend/videos", service.GetRecommendVideos)
+	router.POST("user/phone", service.GetUserPhone)
 
 	// 8080 port
 	log.Fatal(router.Run())

@@ -12,7 +12,6 @@ import (
 	"wxcloudrun-golang/internal/pkg/model"
 	"wxcloudrun-golang/internal/pkg/resp"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,25 +36,38 @@ func NewService() *Service {
 // WeChatLogin /wechat/applet_login?code=xxx [get]  路由
 // 微信小程序登录
 func (s *Service) WeChatLogin(c *gin.Context) {
-	code := c.Query("code") //  获取code
+	openID := c.GetHeader("X-WX-OPENID")
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
+	var phoneReq PhoneReq
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	_ = json.Unmarshal(body, &phoneReq)
 	// 根据code获取 openID 和 session_key
-	wxLoginResp, err := s.UserService.WXLogin(code)
+	wxLoginResp, err := s.UserService.WXLogin(openID, phoneReq.CloudID)
 	if err != nil {
 		c.JSON(400, err.Error())
 		return
 	}
-	// 保存登录态
-	session := sessions.Default(c)
-	session.Set("openid", wxLoginResp.OpenId)
-	session.Set("sessionKey", wxLoginResp.SessionKey)
-	// 这里用openid和sessionkey的串接 进行MD5之后作为该用户的自定义登录态
-	mySession := user.GetMD5Encode(wxLoginResp.OpenId + wxLoginResp.SessionKey)
-	// 接下来可以将openid 和 sessionkey, mySession 存储到数据库中,
-	// 但这里要保证mySession 唯一, 以便于用mySession去索引openid 和sessionkey
-	c.String(200, mySession)
+	c.JSON(200, resp.ToStruct(wxLoginResp, err))
 }
 
 // 主页面相关
+
+type PhoneReq struct {
+	CloudID string `json:"cloud_id"`
+}
+
+// GetUserPhone
+func (s *Service) GetUserPhone(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
+
+}
 
 // ToggleCollectVideo 收藏视频
 func (s *Service) ToggleCollectVideo(c *gin.Context) {
