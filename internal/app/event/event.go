@@ -71,6 +71,9 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 	for hour := range distinctHours {
 		hours = append(hours, hour)
 	}
+	if len(hours) == 0 {
+		return results, nil
+	}
 	// sort hours
 	sort.Slice(hours, func(i, j int) bool { return hours[i] > hours[j] })
 	// get events by hours

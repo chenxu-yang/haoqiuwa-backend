@@ -22,9 +22,11 @@ func NewService() *Service {
 
 type WXLoginResp struct {
 	DataList []struct {
-		Data struct {
-			PhoneNumber string `json:"phoneNumber"`
-		} `json:"data"`
+		Json struct {
+			Data struct {
+				PhoneNumber string `json:"phoneNumber"`
+			} `json:"data"`
+		} `json:"json"`
 	} `json:"data_list"`
 }
 
@@ -65,10 +67,10 @@ func (s *Service) WXLogin(openid string, cloudID string) (bool, error) {
 	}
 	// print data
 	fmt.Println(wxResp)
-	if wxResp.DataList != nil && len(wxResp.DataList) > 0 && wxResp.DataList[0].Data.PhoneNumber == "" {
+	if wxResp.DataList != nil && len(wxResp.DataList) > 0 && wxResp.DataList[0].Json.Data.PhoneNumber == "" {
 		_, err = s.UserDao.Create(&model.User{
 			OpenID:      openid,
-			Phone:       wxResp.DataList[0].Data.PhoneNumber,
+			Phone:       wxResp.DataList[0].Json.Data.PhoneNumber,
 			CreatedTime: time.Now(),
 			UpdatedTime: time.Now(),
 		})
