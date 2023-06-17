@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 	"wxcloudrun-golang/db"
@@ -38,4 +39,22 @@ func TestService_WXLogin(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestService_GetUserPhone(t *testing.T) {
+	str := `
+{"errcode":0,"errmsg":"ok","data_list":[{"cloud_id":"69_hLOlCnc0ymeJeZXwDn9yBJG2KLZ2fFYuG4I6ZTE0kXV28JZaEVOM9FZB9uk","json":"{ \"cloudID\":\"69_hLOlCnc0ymeJeZXwDn9yBJG2KLZ2fFYuG4I6ZTE0kXV28JZaEVOM9FZB9uk\", \"data\":{\"phoneNumber\":\"13772065985\",\"purePhoneNumber\":\"13772065985\",\"countryCode\":\"86\",\"watermark\":{\"timestamp\":1686993965,\"appid\":\"wx69e45cc989de661d\"}} }"}]}
+`
+	var resp WXLoginResp
+	err := json.Unmarshal([]byte(str), &resp)
+	if err != nil {
+		t.Error(err)
+	}
+	var phone PhoneInfo
+	err = json.Unmarshal([]byte(resp.DataList[0].JSON), &phone)
+	if err != nil {
+		t.Error(err)
+	}
+	print(phone.Data.PhoneNumber)
+
 }

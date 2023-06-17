@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 	"wxcloudrun-golang/internal/pkg/db"
+
+	"gorm.io/gorm/clause"
 )
 
 type User struct {
@@ -21,7 +23,9 @@ func (obj *User) TableName() string {
 // Create 创建记录
 func (obj *User) Create(user *User) (*User, error) {
 	// create, if record exists, update
-	err := db.Get().Table(obj.TableName()).Where(User{OpenID: user.OpenID}).Assign(user).FirstOrCreate(user).Error
+	err := db.Get().Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(user).Error
 	return user, err
 }
 

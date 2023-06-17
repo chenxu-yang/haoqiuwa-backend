@@ -2,8 +2,6 @@ package user
 
 import (
 	"bytes"
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -21,13 +19,18 @@ func NewService() *Service {
 }
 
 type WXLoginResp struct {
+	Errcode  int    `json:"errcode"`
+	Errmsg   string `json:"errmsg"`
 	DataList []struct {
-		Json struct {
-			Data struct {
-				PhoneNumber string `json:"phoneNumber"`
-			} `json:"data"`
-		} `json:"json"`
+		CloudID string `json:"cloud_id"`
+		JSON    string `json:"json"`
 	} `json:"data_list"`
+}
+
+type PhoneInfo struct {
+	Data struct {
+		PhoneNumber string `json:"phoneNumber"`
+	}
 }
 
 func (s *Service) WXLogin(openid string, cloudID string) (bool, error) {
@@ -51,26 +54,29 @@ func (s *Service) WXLogin(openid string, cloudID string) (bool, error) {
 		return false, err
 	}
 	defer resp.Body.Close()
-	bodys, err := ioutil.ReadAll(resp.Body)
+	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return false, err
 	}
-	fmt.Println(string(bodys))
-	// print response
-	fmt.Println(resp)
 	// 解析http请求中body 数据到我们定义的结构体中
 	wxResp := WXLoginResp{}
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&wxResp); err != nil {
+	if err := json.Unmarshal(respBody, &wxResp); err != nil {
+		return false, err
+	}
+	if wxResp.Errcode != 0 {
+		return false, fmt.Errorf("微信登录失败: %s", wxResp.Errmsg)
+	}
+	// 解析手机号
+	phoneInfo := PhoneInfo{}
+	if err := json.Unmarshal([]byte(wxResp.DataList[0].JSON), &phoneInfo); err != nil {
 		return false, err
 	}
 	// print data
-	fmt.Println(wxResp)
-	if wxResp.DataList != nil && len(wxResp.DataList) > 0 && wxResp.DataList[0].Json.Data.PhoneNumber == "" {
+	if wxResp.DataList != nil && len(wxResp.DataList) > 0 && phoneInfo.Data.PhoneNumber != "" {
 		_, err = s.UserDao.Create(&model.User{
 			OpenID:      openid,
-			Phone:       wxResp.DataList[0].Json.Data.PhoneNumber,
+			Phone:       phoneInfo.Data.PhoneNumber,
 			CreatedTime: time.Now(),
 			UpdatedTime: time.Now(),
 		})
@@ -79,11 +85,4 @@ func (s *Service) WXLogin(openid string, cloudID string) (bool, error) {
 		}
 	}
 	return true, nil
-}
-
-// 将一个字符串进行MD5加密后返回加密后的字符串
-func GetMD5Encode(data string) string {
-	h := md5.New()
-	h.Write([]byte(data))
-	return hex.EncodeToString(h.Sum(nil))
 }
