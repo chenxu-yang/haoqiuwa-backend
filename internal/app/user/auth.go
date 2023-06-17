@@ -7,9 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
+	"wxcloudrun-golang/internal/pkg/model"
 )
 
 type Service struct {
+	UserDao *model.User
 }
 
 func NewService() *Service {
@@ -49,6 +52,17 @@ func (s *Service) WXLogin(openid string, cloudID string) (bool, error) {
 	decoder := json.NewDecoder(resp.Body)
 	if err := decoder.Decode(&wxResp); err != nil {
 		return false, err
+	}
+	if wxResp.DataList != nil && len(wxResp.DataList) > 0 && wxResp.DataList[0].Data.PhoneNumber == "" {
+		_, err = s.UserDao.Create(&model.User{
+			OpenID:      openid,
+			Phone:       wxResp.DataList[0].Data.PhoneNumber,
+			CreatedTime: time.Now(),
+			UpdatedTime: time.Now(),
+		})
+		if err != nil {
+			return false, err
+		}
 	}
 	return true, nil
 }
