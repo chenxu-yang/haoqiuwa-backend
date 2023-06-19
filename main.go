@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 	"wxcloudrun-golang/internal/app/service"
 	"wxcloudrun-golang/internal/pkg/db"
 
@@ -10,6 +11,8 @@ import (
 )
 
 func main() {
+	var cstZone = time.FixedZone("CST", 8*3600) // 东八
+	time.Local = cstZone
 	if err := db.Init(); err != nil {
 		panic(fmt.Sprintf("mysql init failed with %+v", err))
 	}
