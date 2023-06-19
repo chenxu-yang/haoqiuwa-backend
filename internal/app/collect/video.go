@@ -13,7 +13,8 @@ type Service struct {
 
 func NewService() *Service {
 	return &Service{
-		CollectDao: &model.Collect{},
+		CollectDao:   &model.Collect{},
+		UserEventDao: &model.UserEvent{},
 	}
 }
 
