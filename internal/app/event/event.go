@@ -80,6 +80,7 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 	for _, hour := range hours {
 		results = append(results, Event{StartTime: int32(hour), EndTime: int32(hour + 1), CourtName: courtID, Status: 0})
 	}
+	print("time now:", time.Now().Hour())
 	if time.Now().Hour() == hours[0] {
 		results[0].Status = 1
 	} else if time.Now().Hour() == hours[0]+1 && time.Now().Minute() < 10 {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"testing"
-	"wxcloudrun-golang/db"
+	"wxcloudrun-golang/internal/pkg/db"
 )
 
 var s Service
