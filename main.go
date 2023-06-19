@@ -35,6 +35,7 @@ func main() {
 	router.GET("/events", service.GetEvents)
 	router.GET("/videos", service.GetEventInfo)
 	router.POST("/collects", service.ToggleCollectVideo)
+	router.POST("/user/event", service.CollectUserEvent)
 	router.GET("/user/collects", service.GetCollectVideos)
 
 	router.GET("/recommend/videos", service.GetRecommendVideos)

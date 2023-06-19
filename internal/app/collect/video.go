@@ -7,7 +7,8 @@ import (
 )
 
 type Service struct {
-	CollectDao *model.Collect
+	CollectDao   *model.Collect
+	UserEventDao *model.UserEvent
 }
 
 func NewService() *Service {
@@ -51,4 +52,16 @@ func (s *Service) GetCollectByUser(userOpenID string) ([]model.Collect, error) {
 		return nil, err
 	}
 	return collects, nil
+}
+
+func (s *Service) CollectUserEvent(openID string, fileID string, eventType int32) (string, error) {
+	data, err := s.UserEventDao.Create(&model.UserEvent{
+		OpenID:    openID,
+		FileID:    fileID,
+		EventType: eventType,
+	})
+	if err != nil {
+		return "", err
+	}
+	return data.FileID, nil
 }

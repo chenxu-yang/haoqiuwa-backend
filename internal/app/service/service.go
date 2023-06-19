@@ -180,3 +180,25 @@ func (s *Service) JudgeLocation(c *gin.Context) {
 	}
 	c.JSON(200, resp.ToStruct(result, err))
 }
+
+// CollectUserEvent 下载视频记录
+func (s *Service) CollectUserEvent(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	userEvent := &model.UserEvent{}
+	err := json.Unmarshal(body, userEvent)
+	if err != nil {
+		c.JSON(400, err.Error())
+		return
+	}
+	data, err := s.CollectService.CollectUserEvent(openID, userEvent.FileID, userEvent.EventType)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(data, err))
+}
