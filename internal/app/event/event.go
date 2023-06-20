@@ -113,9 +113,13 @@ func (s *Service) GetEventInfo(courtID string, hour int, openID string) (*EventD
 		return strings.Compare(ssi[len(ssi)-1], ssj[len(ssj)-1]) < 0
 	})
 	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
-	firstHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "00"), EndTime: fmt.Sprintf("%d:%d", hour,
-		30)}
-	secondHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "30"), EndTime: fmt.Sprintf("%d:%s", hour+1,
+	firstHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "00"), EndTime: fmt.Sprintf("%d:%s", hour,
+		"15")}
+	secondHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "15"), EndTime: fmt.Sprintf("%d:%s", hour,
+		"30")}
+	thirdVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "30"), EndTime: fmt.Sprintf("%d:%s", hour,
+		"45")}
+	fourthVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "45"), EndTime: fmt.Sprintf("%d:%s", hour+1,
 		"00")}
 	for index := range allLinks {
 		isCollected := false
@@ -129,14 +133,26 @@ func (s *Service) GetEventInfo(courtID string, hour int, openID string) (*EventD
 		links := strings.Split(allLinks[index], "/")
 		minuteString := strings.Split(strings.Split(links[len(links)-1], "-")[1], ".")[0]
 		minute, _ := strconv.Atoi(minuteString)
-		if minute <= 30 {
+		if minute <= 15 {
 			firstHalfVideo.Videos = append(firstHalfVideo.Videos, &Video{
 				IsCollected: isCollected,
 				Url:         allLinks[index],
 				PicUrl:      picLinks[index],
 			})
-		} else {
+		} else if minute > 15 && minute <= 30 {
 			secondHalfVideo.Videos = append(secondHalfVideo.Videos, &Video{
+				IsCollected: isCollected,
+				Url:         allLinks[index],
+				PicUrl:      picLinks[index],
+			})
+		} else if minute > 30 && minute <= 45 {
+			thirdVideo.Videos = append(secondHalfVideo.Videos, &Video{
+				IsCollected: isCollected,
+				Url:         allLinks[index],
+				PicUrl:      picLinks[index],
+			})
+		} else {
+			fourthVideo.Videos = append(secondHalfVideo.Videos, &Video{
 				IsCollected: isCollected,
 				Url:         allLinks[index],
 				PicUrl:      picLinks[index],
@@ -144,19 +160,28 @@ func (s *Service) GetEventInfo(courtID string, hour int, openID string) (*EventD
 		}
 	}
 	if len(firstHalfVideo.Videos) > 0 {
-		if len(secondHalfVideo.Videos) == 0 && len(firstHalfVideo.Videos) < 6 && time.Now().Hour() == hour && time.
-			Now().Minute() < 40 {
+		if time.Now().Hour() == hour && time.Now().Minute() < 25 && len(secondHalfVideo.Videos) == 0 {
 			firstHalfVideo.Status = 1
 		}
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
-
 	}
 	if len(secondHalfVideo.Videos) > 0 {
-		if len(secondHalfVideo.Videos) < 6 && (time.Now().Hour() == hour || (time.Now().Hour() == hour+1 && time.Now().
-			Minute() < 10)) {
+		if time.Now().Hour() == hour && time.Now().Minute() < 40 && len(thirdVideo.Videos) == 0 {
 			secondHalfVideo.Status = 1
 		}
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
+	}
+	if len(thirdVideo.Videos) > 0 {
+		if time.Now().Hour() == hour && time.Now().Minute() < 55 && len(fourthVideo.Videos) == 0 {
+			thirdVideo.Status = 1
+		}
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, thirdVideo)
+	}
+	if len(fourthVideo.Videos) > 0 {
+		if time.Now().Hour() == hour || (time.Now().Hour() == hour+1 && time.Now().Minute() < 10) {
+			fourthVideo.Status = 1
+		}
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo)
 	}
 	return eventDetail, nil
 }

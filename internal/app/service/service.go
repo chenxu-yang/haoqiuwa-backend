@@ -202,3 +202,19 @@ func (s *Service) CollectUserEvent(c *gin.Context) {
 	}
 	c.JSON(200, resp.ToStruct(data, err))
 }
+
+// CollectSurvey 下载问卷记录
+func (s *Service) CollectSurvey(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	data, err := s.CollectService.CreateSurvey(openID, string(body))
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(data, err))
+}

@@ -9,12 +9,14 @@ import (
 type Service struct {
 	CollectDao   *model.Collect
 	UserEventDao *model.UserEvent
+	SurveyDao    *model.Survey
 }
 
 func NewService() *Service {
 	return &Service{
 		CollectDao:   &model.Collect{},
 		UserEventDao: &model.UserEvent{},
+		SurveyDao:    &model.Survey{},
 	}
 }
 
@@ -65,4 +67,12 @@ func (s *Service) CollectUserEvent(openID string, fileID string, eventType int32
 		return "", err
 	}
 	return data.FileID, nil
+}
+
+func (s *Service) CreateSurvey(openID string, content string) (*model.Survey, error) {
+	data, err := s.SurveyDao.Create(&model.Survey{OpenID: openID, Content: content, CreatedTime: time.Now(), UpdatedTime: time.Now()})
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
