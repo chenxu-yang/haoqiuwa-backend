@@ -28,7 +28,7 @@ func main() {
 
 	router.GET("/recommend/videos", service.GetRecommendVideos)
 	router.POST("/user/phone", service.GetUserPhone)
-	router.POST("survey", service.CollectSurvey)
+	router.POST("/survey", service.CollectSurvey)
 
 	// 8080 port
 	log.Fatal(router.Run())

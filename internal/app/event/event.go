@@ -146,13 +146,13 @@ func (s *Service) GetEventInfo(courtID string, hour int, openID string) (*EventD
 				PicUrl:      picLinks[index],
 			})
 		} else if minute > 30 && minute <= 45 {
-			thirdVideo.Videos = append(secondHalfVideo.Videos, &Video{
+			thirdVideo.Videos = append(thirdVideo.Videos, &Video{
 				IsCollected: isCollected,
 				Url:         allLinks[index],
 				PicUrl:      picLinks[index],
 			})
 		} else {
-			fourthVideo.Videos = append(secondHalfVideo.Videos, &Video{
+			fourthVideo.Videos = append(fourthVideo.Videos, &Video{
 				IsCollected: isCollected,
 				Url:         allLinks[index],
 				PicUrl:      picLinks[index],
