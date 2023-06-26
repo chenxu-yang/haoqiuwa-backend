@@ -195,7 +195,7 @@ func (s *Service) CollectUserEvent(c *gin.Context) {
 		c.JSON(400, err.Error())
 		return
 	}
-	data, err := s.CollectService.CollectUserEvent(openID, userEvent.FileID, userEvent.EventType)
+	data, err := s.CollectService.CollectUserEvent(openID, userEvent.FileID, userEvent.EventType, userEvent.FromPage)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
