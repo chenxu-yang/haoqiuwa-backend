@@ -58,3 +58,28 @@ func TestService_GetUserPhone(t *testing.T) {
 	print(phone.Data.PhoneNumber)
 
 }
+
+func TestService_StoreCourt(t *testing.T) {
+	type args struct {
+		openid string
+		court  int32
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "case1",
+			args:    args{openid: "oueu25X3eun7K9zJ6UpCUQiEO0yc", court: 10},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := s.StoreCourt(tt.args.openid, tt.args.court); (err != nil) != tt.wantErr {
+				t.Errorf("StoreCourt() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

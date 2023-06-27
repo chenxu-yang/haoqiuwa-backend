@@ -16,6 +16,8 @@ func main() {
 	service := service.NewService()
 	router := gin.Default()
 	router.POST("/auth/login", service.WeChatLogin)
+	router.POST("/user/court", service.StoreCourt)
+	router.GET("/user/download", service.GetUserDownload)
 	router.GET("/courts", service.GetCounts)
 	router.GET("/courts/:id", service.GetCountInfo)
 	router.GET("/courts/:id/judge", service.JudgeLocation)

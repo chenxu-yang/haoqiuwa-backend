@@ -77,3 +77,12 @@ func (s *Service) CreateSurvey(openID string, content string) (*model.Survey, er
 	}
 	return data, nil
 }
+
+func (s *Service) GetUserDownload(openID string) (int32, error) {
+	data, err := s.UserEventDao.Gets(&model.UserEvent{OpenID: openID, EventType: 2})
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+	return int32(len(data)), nil
+}

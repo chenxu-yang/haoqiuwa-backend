@@ -53,6 +53,24 @@ func (s *Service) WeChatLogin(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(wxLoginResp, err))
 }
 
+type courtReq struct {
+	Court int32 `json:"court"`
+}
+
+// StoreCourt
+func (s *Service) StoreCourt(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	var courtReq courtReq
+	_ = json.Unmarshal(body, &courtReq)
+	err := s.UserService.StoreCourt(openID, courtReq.Court)
+	c.JSON(200, resp.ToStruct(nil, err))
+}
+
 // 主页面相关
 
 type PhoneReq struct {
@@ -212,6 +230,21 @@ func (s *Service) CollectSurvey(c *gin.Context) {
 	}
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	data, err := s.CollectService.CreateSurvey(openID, string(body))
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(data, err))
+}
+
+// GetUserDownload
+func (s *Service) GetUserDownload(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
+	data, err := s.CollectService.GetUserDownload(openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

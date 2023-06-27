@@ -11,6 +11,7 @@ type User struct {
 	ID          int64     `json:"id" gorm:"column:id;primary_key;AUTO_INCREMENT"`
 	OpenID      string    `json:"open_id" gorm:"column:open_id;type:varchar(255);not null;unique_index"`
 	Phone       string    `json:"phone" gorm:"column:phone;type:varchar(255);not null;unique_index"`
+	Court       int32     `json:"court" gorm:"column:court;type:int(11);not null;default:0;comment:'球场'"`
 	CreatedTime time.Time `json:"created_time" gorm:"column:created_time;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:'创建时间'"`
 	UpdatedTime time.Time `json:"updated_time" gorm:"column:updated_time;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:'更新时间'"`
 }

@@ -86,3 +86,21 @@ func (s *Service) WXLogin(openid string, cloudID string) (bool, error) {
 	}
 	return true, nil
 }
+
+func (s *Service) StoreCourt(openid string, court int32) error {
+	user, err := s.UserDao.Gets(&model.User{OpenID: openid})
+	if err != nil {
+		return err
+	}
+	if len(user) == 0 {
+		return fmt.Errorf("用户不存在")
+	}
+	if user[0].Court != 0 {
+		return nil
+	}
+	// update this user
+	user[0].Court = court
+	user[0].UpdatedTime = time.Now()
+	_, err = s.UserDao.Update(&user[0])
+	return err
+}
