@@ -150,18 +150,32 @@ func (s *Service) GetEvents(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(results, err))
 }
 
-// GetEventInfo 获取事件
-func (s *Service) GetEventInfo(c *gin.Context) {
+// GetVideos 获取事件
+func (s *Service) GetVideos(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
 	courtID := c.Query("court")
 	hour := c.Query("hour")
 	hourInt, _ := strconv.Atoi(hour)
-	event, err := s.EventService.GetEventInfo(courtID, hourInt, openID)
+	event, err := s.EventService.GetVideos(courtID, hourInt, openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
 	}
 	c.JSON(200, resp.ToStruct(event, err))
+}
+
+// GetRecords 获取录像
+func (s *Service) GetRecords(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	courtID := c.Query("court")
+	hour := c.Query("hour")
+	hourInt, _ := strconv.Atoi(hour)
+	data, err := s.EventService.GetRecord(courtID, hourInt, openID)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(data, err))
 }
 
 // GetCollectVideos 获取用户收藏的视频
@@ -213,7 +227,8 @@ func (s *Service) CollectUserEvent(c *gin.Context) {
 		c.JSON(400, err.Error())
 		return
 	}
-	data, err := s.CollectService.CollectUserEvent(openID, userEvent.FileID, userEvent.EventType, userEvent.FromPage)
+	data, err := s.CollectService.CollectUserEvent(openID, userEvent.FileID, userEvent.EventType, userEvent.FromPage,
+		userEvent.VideoType)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

@@ -23,7 +23,8 @@ func main() {
 	router.GET("/courts/:id/judge", service.JudgeLocation)
 
 	router.GET("/events", service.GetEvents)
-	router.GET("/videos", service.GetEventInfo)
+	router.GET("/videos", service.GetVideos)
+	router.GET("/records", service.GetRecords)
 	router.POST("/collects", service.ToggleCollectVideo)
 	router.POST("/user/event", service.CollectUserEvent)
 	router.GET("/user/collects", service.GetCollectVideos)

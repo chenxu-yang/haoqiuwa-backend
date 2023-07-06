@@ -57,12 +57,15 @@ func (s *Service) GetCollectByUser(userOpenID string) ([]model.Collect, error) {
 	return collects, nil
 }
 
-func (s *Service) CollectUserEvent(openID string, fileID string, eventType int32, fromPage string) (string, error) {
+func (s *Service) CollectUserEvent(openID string, fileID string, eventType int32, fromPage string,
+	videoType int32) (string,
+	error) {
 	data, err := s.UserEventDao.Create(&model.UserEvent{
 		OpenID:    openID,
 		FileID:    fileID,
 		EventType: eventType,
 		FromPage:  fromPage,
+		VideoType: videoType,
 	})
 	if err != nil {
 		return "", err

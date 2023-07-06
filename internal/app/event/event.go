@@ -89,7 +89,7 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 	return results, nil
 }
 
-func (s *Service) GetEventInfo(courtID string, hour int, openID string) (*EventDetail, error) {
+func (s *Service) GetVideos(courtID string, hour int, openID string) (*EventDetail, error) {
 	today := time.Now().Format("20060102")
 	allLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%s/%s/v%d", courtID, today, hour))
 	if err != nil {
@@ -97,6 +97,103 @@ func (s *Service) GetEventInfo(courtID string, hour int, openID string) (*EventD
 		return nil, err
 	}
 	picLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%s/%s/p%d", courtID, today, hour))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	// order by minute
+	sort.Slice(allLinks, func(i, j int) bool {
+		ssi := strings.Split(allLinks[i], "/")
+		ssj := strings.Split(allLinks[j], "/")
+		return strings.Compare(ssi[len(ssi)-1], ssj[len(ssj)-1]) < 0
+	})
+	sort.Slice(picLinks, func(i, j int) bool {
+		ssi := strings.Split(picLinks[i], "/")
+		ssj := strings.Split(picLinks[j], "/")
+		return strings.Compare(ssi[len(ssi)-1], ssj[len(ssj)-1]) < 0
+	})
+	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
+	firstHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "00"), EndTime: fmt.Sprintf("%d:%s", hour,
+		"15")}
+	secondHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "15"), EndTime: fmt.Sprintf("%d:%s", hour,
+		"30")}
+	thirdVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "30"), EndTime: fmt.Sprintf("%d:%s", hour,
+		"45")}
+	fourthVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "45"), EndTime: fmt.Sprintf("%d:%s", hour+1,
+		"00")}
+	for index := range allLinks {
+		isCollected := false
+		collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: allLinks[index]})
+		if err != nil {
+			return nil, err
+		}
+		if len(collects) > 0 {
+			isCollected = true
+		}
+		links := strings.Split(allLinks[index], "/")
+		minuteString := strings.Split(strings.Split(links[len(links)-1], "-")[1], ".")[0]
+		minute, _ := strconv.Atoi(minuteString)
+		if minute <= 15 {
+			firstHalfVideo.Videos = append(firstHalfVideo.Videos, &Video{
+				IsCollected: isCollected,
+				Url:         allLinks[index],
+				PicUrl:      picLinks[index],
+			})
+		} else if minute > 15 && minute <= 30 {
+			secondHalfVideo.Videos = append(secondHalfVideo.Videos, &Video{
+				IsCollected: isCollected,
+				Url:         allLinks[index],
+				PicUrl:      picLinks[index],
+			})
+		} else if minute > 30 && minute <= 45 {
+			thirdVideo.Videos = append(thirdVideo.Videos, &Video{
+				IsCollected: isCollected,
+				Url:         allLinks[index],
+				PicUrl:      picLinks[index],
+			})
+		} else {
+			fourthVideo.Videos = append(fourthVideo.Videos, &Video{
+				IsCollected: isCollected,
+				Url:         allLinks[index],
+				PicUrl:      picLinks[index],
+			})
+		}
+	}
+	if len(firstHalfVideo.Videos) > 0 {
+		if time.Now().Hour() == hour && time.Now().Minute() < 25 && len(secondHalfVideo.Videos) == 0 {
+			firstHalfVideo.Status = 1
+		}
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
+	}
+	if len(secondHalfVideo.Videos) > 0 {
+		if time.Now().Hour() == hour && time.Now().Minute() < 40 && len(thirdVideo.Videos) == 0 {
+			secondHalfVideo.Status = 1
+		}
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
+	}
+	if len(thirdVideo.Videos) > 0 {
+		if time.Now().Hour() == hour && time.Now().Minute() < 55 && len(fourthVideo.Videos) == 0 {
+			thirdVideo.Status = 1
+		}
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, thirdVideo)
+	}
+	if len(fourthVideo.Videos) > 0 {
+		if time.Now().Hour() == hour || (time.Now().Hour() == hour+1 && time.Now().Minute() < 10) {
+			fourthVideo.Status = 1
+		}
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo)
+	}
+	return eventDetail, nil
+}
+
+func (s *Service) GetRecord(courtID string, hour int, openID string) (*EventDetail, error) {
+	today := time.Now().Format("20060102")
+	allLinks, err := tcos.GetCosFileList(fmt.Sprintf("record/court%s/%s/v%d", courtID, today, hour))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	picLinks, err := tcos.GetCosFileList(fmt.Sprintf("record/court%s/%s/p%d", courtID, today, hour))
 	if err != nil {
 		log.Println(err)
 		return nil, err

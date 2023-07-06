@@ -84,9 +84,9 @@ func TestService_GetEventInfo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := s.GetEventInfo(tt.args.courtID, tt.args.hour, tt.args.openID)
+			_, err := s.GetVideos(tt.args.courtID, tt.args.hour, tt.args.openID)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("GetEventInfo() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("GetVideos() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 		})
