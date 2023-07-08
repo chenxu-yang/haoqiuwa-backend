@@ -60,6 +60,5 @@ func GetCosFileList(prefix string) ([]string, error) {
 		videoIDs = append(videoIDs, fmt.Sprintf("cloud://prod-2gicsblt193f5dc8."+
 			"7072-prod-2gicsblt193f5dc8-1318337180/%s", v.Key))
 	}
-	log.Printf("videoIDs: %+v", videoIDs)
 	return videoIDs, nil
 }
