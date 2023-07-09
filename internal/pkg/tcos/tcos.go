@@ -24,6 +24,7 @@ type TmpAuth struct {
 func GetCosFileList(prefix string) ([]string, error) {
 	resp, err := http.Get("http://api.weixin.qq.com/_/cos/getauth")
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -53,6 +54,7 @@ func GetCosFileList(prefix string) ([]string, error) {
 	}
 	cos, _, err := client.Bucket.Get(context.Background(), opt)
 	if err != nil {
+		log.Print(err)
 		return nil, err
 	}
 	var videoIDs []string

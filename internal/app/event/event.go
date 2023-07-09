@@ -55,7 +55,7 @@ func (s *Service) GetEvents(courtID string) ([]Event, error) {
 	// get cos links
 	allLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%s/%s/v", courtID, today))
 	if err != nil {
-		log.Println(err)
+		log.Printf("get cos file list error: %v", err)
 		return nil, err
 	}
 	// get hours by links, links are like 4042-prod/highlight/court1/20210101/10-32.mp4, 10-32 means hour and minute
