@@ -266,3 +266,20 @@ func (s *Service) GetUserDownload(c *gin.Context) {
 	}
 	c.JSON(200, resp.ToStruct(data, err))
 }
+
+// StoreVideo
+func (s *Service) StoreVideo(c *gin.Context) {
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	video := &model.Video{}
+	err := json.Unmarshal(body, video)
+	if err != nil {
+		c.JSON(400, err.Error())
+		return
+	}
+	data, err := s.EventService.StoreVideo(video)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(data, err))
+}

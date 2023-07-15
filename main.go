@@ -24,6 +24,7 @@ func main() {
 
 	router.GET("/events", service.GetEvents)
 	router.GET("/videos", service.GetVideos)
+	router.POST("/videos", service.StoreVideo)
 	router.GET("/records", service.GetRecords)
 	router.POST("/collects", service.ToggleCollectVideo)
 	router.POST("/user/event", service.CollectUserEvent)

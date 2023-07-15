@@ -11,6 +11,8 @@ import (
 	"wxcloudrun-golang/internal/pkg/tcos"
 )
 
+var cosLink = "cloud://prod-2gicsblt193f5dc8.7072-prod-2gicsblt193f5dc8-1318337180/highlight"
+
 type Service struct {
 	EventDao   *model.Event
 	VideoDao   *model.Video
@@ -281,4 +283,32 @@ func (s *Service) GetRecord(courtID string, hour int, openID string) (*EventDeta
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo)
 	}
 	return eventDetail, nil
+}
+
+func (s *Service) StoreVideo(video *model.Video) (int32, error) {
+	// get file path
+	var typeString string
+	var fileType string
+	if video.Type == 1 {
+		typeString = "v"
+		fileType = "MP4"
+	} else {
+		typeString = "p"
+		fileType = "png"
+	}
+	filePath := fmt.Sprintf("%s/court%d/%d/%s%s.%s", cosLink, video.Court, video.Date, typeString, video.Time, fileType)
+	record, err := s.VideoDao.Create(&model.Video{
+		FilePath:    filePath,
+		Date:        video.Date,
+		Time:        video.Time,
+		Type:        video.Type,
+		Court:       video.Court,
+		CreatedTime: time.Now(),
+		UpdatedTime: time.Now(),
+	})
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	return record.ID, nil
 }

@@ -6,18 +6,20 @@ import (
 )
 
 type Video struct {
-	ID          int32     `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Name        string    `gorm:"column:name;type:varchar(255);not null;default:'';comment:'视频名称'"`
-	Url         string    `gorm:"column:url;type:varchar(255);not null;default:'';comment:'视频地址'"`
-	Rank        int32     `gorm:"column:rank;type:int(11);not null;default:0;comment:'视频排名'"`
-	CreatedTime time.Time `gorm:"column:created_time;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:'创建时间'"`
-	UpdatedTime time.Time `gorm:"column:updated_time;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:'更新时间'"`
+	ID          int32     `gorm:"primary_key" json:"id"`
+	FilePath    string    `gorm:"column:file_path" json:"file_path"`
+	Date        int32     `gorm:"column:date" json:"date"`
+	Time        string    `gorm:"column:time" json:"time"`
+	Type        int32     `gorm:"column:type" json:"type"`
+	Court       int32     `gorm:"column:court" json:"court"`
+	CreatedTime time.Time `gorm:"column:created_time" json:"created_time"`
+	UpdatedTime time.Time `gorm:"column:updated_time" json:"updated_time"`
 }
 
+// GORM table name for Video struct
 func (obj *Video) TableName() string {
 	return "t_video"
 }
-
 func (obj *Video) Create(video *Video) (*Video, error) {
 	err := db.Get().Create(video).Error
 	return video, err
@@ -42,10 +44,4 @@ func (obj *Video) Update(video *Video) (*Video, error) {
 
 func (obj *Video) Delete(video *Video) error {
 	return db.Get().Delete(video, "id = ?", video.ID).Error
-}
-
-func (obj *Video) GetByDescRank(limit int32) ([]Video, error) {
-	results := make([]Video, 0)
-	err := db.Get().Table(obj.TableName()).Order("rank desc").Limit(int(limit)).Find(&results).Error
-	return results, err
 }

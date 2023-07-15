@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 	"wxcloudrun-golang/internal/pkg/db"
+	"wxcloudrun-golang/internal/pkg/model"
 )
 
 var s Service
@@ -87,6 +88,36 @@ func TestService_GetEventInfo(t *testing.T) {
 			_, err := s.GetVideos(tt.args.courtID, tt.args.hour, tt.args.openID)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetVideos() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
+func TestService_StoreVideo(t *testing.T) {
+	type args struct {
+		video *model.Video
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "case1",
+			args: args{video: &model.Video{
+				Date:  20230715,
+				Time:  "9-40",
+				Type:  2,
+				Court: 10,
+			}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := s.StoreVideo(tt.args.video)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("StoreVideo() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 		})
