@@ -306,7 +306,7 @@ func (s *Service) StoreVideo(video *model.Video) (string, error) {
 	})
 	if err != nil {
 		log.Println(err)
-		return 0, err
+		return "", err
 	}
 	return record.FilePath, nil
 }
