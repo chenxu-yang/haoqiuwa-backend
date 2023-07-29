@@ -50,7 +50,7 @@ func GetCosFileList(prefix string) ([]string, error) {
 	})
 	opt := &cos.BucketGetOptions{
 		Prefix:  prefix,
-		MaxKeys: 300,
+		MaxKeys: 1000,
 	}
 	cos, _, err := client.Bucket.Get(context.Background(), opt)
 	if err != nil {
