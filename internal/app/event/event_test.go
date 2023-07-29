@@ -106,10 +106,11 @@ func TestService_StoreVideo(t *testing.T) {
 		{
 			name: "case1",
 			args: args{video: &model.Video{
-				Date:  20230715,
-				Time:  "9-40",
-				Type:  2,
-				Court: 10,
+				Date:     20230715,
+				Hour:     9,
+				FileName: "P9-40.MP4",
+				Type:     2,
+				Court:    10,
 			}},
 		},
 	}
