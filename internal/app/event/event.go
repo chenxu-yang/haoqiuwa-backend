@@ -11,7 +11,7 @@ import (
 	"wxcloudrun-golang/internal/pkg/tcos"
 )
 
-var cosLink = "cloud://prod-2gicsblt193f5dc8.7072-prod-2gicsblt193f5dc8-1318337180/highlight"
+var cosLink = "cloud://prod-2gicsblt193f5dc8.7072-prod-2gicsblt193f5dc8-1318337180/"
 
 type Service struct {
 	EventDao   *model.Event
@@ -285,22 +285,20 @@ func (s *Service) GetRecord(courtID string, hour int, openID string) (*EventDeta
 	return eventDetail, nil
 }
 
-func (s *Service) StoreVideo(video *model.Video) (int32, error) {
+func (s *Service) StoreVideo(video *model.Video) (string, error) {
 	// get file path
 	var typeString string
-	var fileType string
 	if video.Type == 1 {
-		typeString = "v"
-		fileType = "MP4"
+		typeString = "highlight"
 	} else {
-		typeString = "p"
-		fileType = "png"
+		typeString = "record"
 	}
-	filePath := fmt.Sprintf("%s/court%d/%d/%s%s.%s", cosLink, video.Court, video.Date, typeString, video.Time, fileType)
+	filePath := fmt.Sprintf("%s%s/court%d/%d/%s", cosLink, typeString, video.Court, video.Date, video.FileName)
 	record, err := s.VideoDao.Create(&model.Video{
 		FilePath:    filePath,
 		Date:        video.Date,
-		Time:        video.Time,
+		Hour:        video.Hour,
+		FileName:    video.FileName,
 		Type:        video.Type,
 		Court:       video.Court,
 		CreatedTime: time.Now(),
@@ -310,5 +308,5 @@ func (s *Service) StoreVideo(video *model.Video) (int32, error) {
 		log.Println(err)
 		return 0, err
 	}
-	return record.ID, nil
+	return record.FilePath, nil
 }
