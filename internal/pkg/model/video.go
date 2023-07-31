@@ -47,3 +47,29 @@ func (obj *Video) Update(video *Video) (*Video, error) {
 func (obj *Video) Delete(video *Video) error {
 	return db.Get().Delete(video, "id = ?", video.ID).Error
 }
+
+func (obj *Video) GetDistinctHours(date int32) ([]int32, error) {
+	results := make([]int32, 0)
+	// get hours order by desc
+	err := db.Get().Table(obj.TableName()).Where("date = ?", date).Order("hour desc").Pluck("distinct hour",
+		&results).Error
+	return results, err
+}
+
+func (obj *Video) GetVideos(date int32, courtID int32, hour int32, videoType int32) ([]*Video, error) {
+	results := make([]*Video, 0)
+	err := db.Get().Table(obj.TableName()).Where(
+		"date = ? and court = ? and hour = ? and file_name like 'v%' and type = ?", date,
+		courtID,
+		hour, videoType).Order("file_name").Find(&results).Error
+	return results, err
+}
+
+func (obj *Video) GetPictures(date int32, courtID int32, hour int32, videoType int32) ([]*Video, error) {
+	results := make([]*Video, 0)
+	err := db.Get().Table(obj.TableName()).Debug().Where(
+		"date = ? and court = ? and hour = ? and file_name like 'p%'and type = ?", date,
+		courtID,
+		hour, videoType).Order("file_name").Find(&results).Error
+	return results, err
+}

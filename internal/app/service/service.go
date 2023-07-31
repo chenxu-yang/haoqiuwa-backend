@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"strconv"
+	"time"
 	"wxcloudrun-golang/internal/app/collect"
 	"wxcloudrun-golang/internal/app/court"
 	"wxcloudrun-golang/internal/app/event"
@@ -142,7 +143,12 @@ func (s *Service) GetEvents(c *gin.Context) {
 		return
 	}
 	courtID := c.Query("court")
-	results, err := s.EventService.GetEvents(courtID)
+	date := c.Query("date")
+	if date == "" {
+		date = time.Now().Format("20060102")
+	}
+	dateInt, _ := strconv.Atoi(date)
+	results, err := s.EventService.GetEvents(courtID, int32(dateInt))
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -154,9 +160,15 @@ func (s *Service) GetEvents(c *gin.Context) {
 func (s *Service) GetVideos(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
 	courtID := c.Query("court")
+	date := c.Query("date")
 	hour := c.Query("hour")
+	if date == "" {
+		date = time.Now().Format("20060102")
+	}
 	hourInt, _ := strconv.Atoi(hour)
-	event, err := s.EventService.GetVideos(courtID, hourInt, openID)
+	dateInt, _ := strconv.Atoi(date)
+	courtIDInt, _ := strconv.Atoi(courtID)
+	event, err := s.EventService.GetVideos(int32(dateInt), int32(courtIDInt), int32(hourInt), openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -168,9 +180,15 @@ func (s *Service) GetVideos(c *gin.Context) {
 func (s *Service) GetRecords(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
 	courtID := c.Query("court")
+	date := c.Query("date")
 	hour := c.Query("hour")
+	if date == "" {
+		date = time.Now().Format("20060102")
+	}
 	hourInt, _ := strconv.Atoi(hour)
-	data, err := s.EventService.GetRecord(courtID, hourInt, openID)
+	dateInt, _ := strconv.Atoi(date)
+	courtIDInt, _ := strconv.Atoi(courtID)
+	data, err := s.EventService.GetRecord(int32(dateInt), int32(courtIDInt), int32(hourInt), openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
