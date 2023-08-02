@@ -73,6 +73,7 @@ func (s *Service) GetEvents(courtID string, date int32) ([]Event, error) {
 }
 
 func (s *Service) GetVideos(date int32, courtID int32, hour int32, openID string) (*EventDetail, error) {
+	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
 	videos, err := s.VideoDao.GetVideos(date, courtID, hour, 1)
 	if err != nil {
 		log.Println(err)
@@ -83,15 +84,14 @@ func (s *Service) GetVideos(date int32, courtID int32, hour int32, openID string
 		log.Println(err)
 		return nil, err
 	}
-	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
 	firstHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "00"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"15")}
+		"15"), Videos: []*Video{}}
 	secondHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "15"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"30")}
+		"30"), Videos: []*Video{}}
 	thirdVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "30"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"45")}
+		"45"), Videos: []*Video{}}
 	fourthVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "45"), EndTime: fmt.Sprintf("%d:%s", hour+1,
-		"00")}
+		"00"), Videos: []*Video{}}
 	for index := range videos {
 		isCollected := false
 		collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: videos[index].FilePath})
@@ -176,13 +176,13 @@ func (s *Service) GetRecord(date int32, courtID int32, hour int32, openID string
 	}
 	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
 	firstHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "00"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"15")}
+		"15"), Videos: []*Video{}}
 	secondHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "15"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"30")}
+		"30"), Videos: []*Video{}}
 	thirdVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "30"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"45")}
+		"45"), Videos: []*Video{}}
 	fourthVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "45"), EndTime: fmt.Sprintf("%d:%s", hour+1,
-		"00")}
+		"00"), Videos: []*Video{}}
 	for index := range videos {
 		isCollected := false
 		collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: videos[index].FilePath})

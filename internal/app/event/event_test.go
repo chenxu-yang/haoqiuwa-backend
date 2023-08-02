@@ -55,7 +55,7 @@ func TestService_GetVideos(t *testing.T) {
 	}{
 		{
 			name:    "case1",
-			args:    args{courtID: 10, hour: 21, openID: "oueu25X3eun7K9zJ6UpCUQiEO0yc", date: 20230729},
+			args:    args{courtID: 10, hour: 9, openID: "oueu25X3eun7K9zJ6UpCUQiEO0yc", date: 20230731},
 			wantErr: false,
 		},
 	}
