@@ -132,21 +132,14 @@ func (s *Service) GetVideos(date int32, courtID int32, hour int32, openID string
 	}
 	// if date is not today, return
 	if time.Now().Format("20060102") != strconv.Itoa(int(date)) {
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo, secondHalfVideo, thirdVideo,
-			fourthVideo)
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo, thirdVideo, secondHalfVideo, firstHalfVideo)
 		return eventDetail, nil
 	}
-	if len(firstHalfVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) && time.Now().Minute() < 25 && len(secondHalfVideo.Videos) == 0 {
-			firstHalfVideo.Status = 1
+	if len(fourthVideo.Videos) > 0 {
+		if time.Now().Hour() == int(hour) || (time.Now().Hour() == int(hour)+1 && time.Now().Minute() < 10) {
+			fourthVideo.Status = 1
 		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
-	}
-	if len(secondHalfVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) && time.Now().Minute() < 40 && len(thirdVideo.Videos) == 0 {
-			secondHalfVideo.Status = 1
-		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo)
 	}
 	if len(thirdVideo.Videos) > 0 {
 		if time.Now().Hour() == int(hour) && time.Now().Minute() < 55 && len(fourthVideo.Videos) == 0 {
@@ -154,11 +147,17 @@ func (s *Service) GetVideos(date int32, courtID int32, hour int32, openID string
 		}
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, thirdVideo)
 	}
-	if len(fourthVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) || (time.Now().Hour() == int(hour)+1 && time.Now().Minute() < 10) {
-			fourthVideo.Status = 1
+	if len(secondHalfVideo.Videos) > 0 {
+		if time.Now().Hour() == int(hour) && time.Now().Minute() < 40 && len(thirdVideo.Videos) == 0 {
+			secondHalfVideo.Status = 1
 		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo)
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
+	}
+	if len(firstHalfVideo.Videos) > 0 {
+		if time.Now().Hour() == int(hour) && time.Now().Minute() < 25 && len(secondHalfVideo.Videos) == 0 {
+			firstHalfVideo.Status = 1
+		}
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
 	}
 	return eventDetail, nil
 }
@@ -223,21 +222,15 @@ func (s *Service) GetRecord(date int32, courtID int32, hour int32, openID string
 	}
 	// if date is not today, return
 	if time.Now().Format("20060102") != strconv.Itoa(int(date)) {
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo, secondHalfVideo, thirdVideo,
-			fourthVideo)
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo, thirdVideo, firstHalfVideo, secondHalfVideo)
+
 		return eventDetail, nil
 	}
-	if len(firstHalfVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) && time.Now().Minute() < 25 && len(secondHalfVideo.Videos) == 0 {
-			firstHalfVideo.Status = 1
+	if len(fourthVideo.Videos) > 0 {
+		if time.Now().Hour() == int(hour) || (time.Now().Hour() == int(hour)+1 && time.Now().Minute() < 10) {
+			fourthVideo.Status = 1
 		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
-	}
-	if len(secondHalfVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) && time.Now().Minute() < 40 && len(thirdVideo.Videos) == 0 {
-			secondHalfVideo.Status = 1
-		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo)
 	}
 	if len(thirdVideo.Videos) > 0 {
 		if time.Now().Hour() == int(hour) && time.Now().Minute() < 55 && len(fourthVideo.Videos) == 0 {
@@ -245,11 +238,17 @@ func (s *Service) GetRecord(date int32, courtID int32, hour int32, openID string
 		}
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, thirdVideo)
 	}
-	if len(fourthVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) || (time.Now().Hour() == int(hour)+1 && time.Now().Minute() < 10) {
-			fourthVideo.Status = 1
+	if len(secondHalfVideo.Videos) > 0 {
+		if time.Now().Hour() == int(hour) && time.Now().Minute() < 40 && len(thirdVideo.Videos) == 0 {
+			secondHalfVideo.Status = 1
 		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo)
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
+	}
+	if len(firstHalfVideo.Videos) > 0 {
+		if time.Now().Hour() == int(hour) && time.Now().Minute() < 25 && len(secondHalfVideo.Videos) == 0 {
+			firstHalfVideo.Status = 1
+		}
+		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
 	}
 	return eventDetail, nil
 }
