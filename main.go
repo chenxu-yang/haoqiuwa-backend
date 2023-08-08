@@ -27,7 +27,7 @@ func main() {
 	// 付费相关
 	router.GET("/vip/count", service.GetVipCount)
 	router.GET("/vip/orders", service.GetVipOrders)
-	router.POST("/vip/order", service.CreateVipOrder)
+	router.POST("/vip/orders", service.CreateVipOrder)
 	router.POST("/vip/count", service.UpdateVipCount)
 
 	// 视频页面
