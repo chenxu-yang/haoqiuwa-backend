@@ -15,25 +15,36 @@ func main() {
 	}
 	service := service.NewService()
 	router := gin.Default()
+	// 用户信息
 	router.POST("/auth/login", service.WeChatLogin)
 	router.POST("/user/court", service.StoreCourt)
+
+	// 用户管理
+	router.GET("/user/collects", service.GetCollectVideos)
 	router.GET("/user/download", service.GetUserDownload)
+	router.POST("/survey", service.CollectSurvey)
+
+	// 付费相关
+	router.GET("/vip/count", service.GetVipCount)
+	router.GET("/vip/orders", service.GetVipOrders)
+	router.POST("/vip/order", service.CreateVipOrder)
+	router.POST("/vip/count", service.UpdateVipCount)
+
+	// 视频页面
+	router.GET("/events", service.GetEvents)
+	router.GET("/videos", service.GetVideos)
+	router.GET("/records", service.GetRecords)
+
+	// 视频处理
+	router.POST("/videos", service.StoreVideo)
+	router.POST("/collects", service.ToggleCollectVideo)
+	router.POST("/user/event", service.CollectUserEvent)
+
+	// 暂未启用 场地管理
 	router.GET("/courts", service.GetCounts)
 	router.GET("/courts/:id", service.GetCountInfo)
 	router.GET("/courts/:id/judge", service.JudgeLocation)
-
-	router.GET("/events", service.GetEvents)
-	router.GET("/videos", service.GetVideos)
-	router.POST("/videos", service.StoreVideo)
-	router.GET("/records", service.GetRecords)
-	router.POST("/collects", service.ToggleCollectVideo)
-	router.POST("/user/event", service.CollectUserEvent)
-	router.GET("/user/collects", service.GetCollectVideos)
-
 	router.GET("/recommend/videos", service.GetRecommendVideos)
-	router.POST("/user/phone", service.GetUserPhone)
-	router.POST("/survey", service.CollectSurvey)
-
 	// 8080 port
 	log.Fatal(router.Run())
 }
