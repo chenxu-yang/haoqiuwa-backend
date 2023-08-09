@@ -10,6 +10,8 @@ type Order struct {
 	OpenID      string    `gorm:"type:varchar(256);column:open_id;default:''" json:"open_id"`
 	OrderType   int32     `gorm:"type:tinyint(2);column:order_type" json:"order_type"`
 	Cost        float64   `gorm:"type:float;column:cost" json:"cost"`
+	PaidCount   int32     `gorm:"column:paid_count" json:"paid_count"`
+	BeforeCount int32     `gorm:"column:before_count" json:"before_count"`
 	CreatedTime time.Time `gorm:"type:datetime;column:created_time;default:CURRENT_TIMESTAMP;onUpdate:CURRENT_TIMESTAMP" json:"created_time"`
 	UpdatedTime time.Time `gorm:"type:datetime;column:updated_time;default:CURRENT_TIMESTAMP;onUpdate:CURRENT_TIMESTAMP" json:"updated_time"`
 }

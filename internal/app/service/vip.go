@@ -52,7 +52,7 @@ func (s *Service) CreateVipOrder(c *gin.Context) {
 		c.JSON(400, err.Error())
 		return
 	}
-	data, err := s.VipService.CreateOrder(openID, order.OrderType, order.Cost)
+	data, err := s.VipService.CreateOrder(openID, order.OrderType, order.Cost, order.PaidCount)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

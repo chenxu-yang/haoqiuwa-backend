@@ -36,11 +36,18 @@ func (s *Service) UpdateRemainingCount(openID string, countToAdd int32) (*model.
 }
 
 // CreateOrder 创建订单
-func (s *Service) CreateOrder(openID string, orderType int32, cost float64) (int32, error) {
+func (s *Service) CreateOrder(openID string, orderType int32, cost float64, count int32) (int32, error) {
+	// get count
+	vip, err := s.VipDao.GetByOpenID(openID)
+	if err != nil {
+		return 0, err
+	}
 	order, err := s.OrderDao.Create(&model.Order{
 		OpenID:      openID,
 		OrderType:   orderType,
 		Cost:        cost,
+		PaidCount:   count,
+		BeforeCount: vip.Count,
 		CreatedTime: time.Now(),
 		UpdatedTime: time.Now(),
 	})
