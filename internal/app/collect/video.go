@@ -89,3 +89,12 @@ func (s *Service) GetUserDownload(openID string) (int32, error) {
 	}
 	return int32(len(data)), nil
 }
+
+func (s *Service) GetUserDownloads(openID string) ([]model.UserEvent, error) {
+	data, err := s.UserEventDao.Gets(&model.UserEvent{OpenID: openID, EventType: 2})
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return data, nil
+}

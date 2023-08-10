@@ -30,7 +30,7 @@ func (s *Service) ToggleCollectVideo(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(collectRecord, err))
 }
 
-// GetUserDownload 获取用户下载记录
+// GetUserDownload 获取用户下载次数
 func (s *Service) GetUserDownload(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
 	if openID == "" {
@@ -38,6 +38,21 @@ func (s *Service) GetUserDownload(c *gin.Context) {
 		return
 	}
 	data, err := s.CollectService.GetUserDownload(openID)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(data, err))
+}
+
+// GetUserDownload 获取用户下载记录
+func (s *Service) GetUserDownloads(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
+	data, err := s.CollectService.GetUserDownloads(openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

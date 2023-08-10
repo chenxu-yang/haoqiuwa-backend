@@ -22,6 +22,7 @@ func main() {
 	// 用户管理
 	router.GET("/user/collects", service.GetCollectVideos)
 	router.GET("/user/download", service.GetUserDownload)
+	router.GET("/user/downloads", service.GetUserDownloads)
 	router.POST("/survey", service.CollectSurvey)
 
 	// 付费相关
