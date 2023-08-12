@@ -36,6 +36,9 @@ func (s *Service) ToggleCollectVideo(openID string, fileID string, picURL string
 		return collect, nil
 	}
 	// 创建收藏
+	if videoType == 0 {
+		videoType = 1
+	}
 	collect, err := s.CollectDao.Create(&model.Collect{
 		OpenID:      openID,
 		FileID:      fileID,
