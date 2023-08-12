@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
+	"strconv"
 	"wxcloudrun-golang/internal/pkg/model"
 	"wxcloudrun-golang/internal/pkg/resp"
 )
@@ -45,23 +46,16 @@ func (s *Service) GetUserDownload(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(data, err))
 }
 
-// GetUserDownload 获取用户下载记录
+// GetUserDownloads 获取用户下载记录
 func (s *Service) GetUserDownloads(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
 	if openID == "" {
 		c.JSON(400, "请先登录")
 		return
 	}
-	// get video_type from req.body
-	body, _ := ioutil.ReadAll(c.Request.Body)
-	eventType := model.UserEvent{}
-	err := json.Unmarshal(body, &eventType)
-	if err != nil {
-		c.JSON(400, err.Error())
-		return
-	}
-
-	data, err := s.CollectService.GetUserDownloads(openID, eventType.VideoType)
+	videoType := c.Query("video_type")
+	videoTypeInt, _ := strconv.Atoi(videoType)
+	data, err := s.CollectService.GetUserDownloads(openID, int32(videoTypeInt))
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -111,10 +105,9 @@ func (s *Service) CollectUserEvent(c *gin.Context) {
 // GetCollectVideos 获取用户收藏的视频
 func (s *Service) GetCollectVideos(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
-	body, _ := ioutil.ReadAll(c.Request.Body)
-	eventType := model.UserEvent{}
-	err := json.Unmarshal(body, &eventType)
-	collects, err := s.CollectService.GetCollectByUser(openID, eventType.VideoType)
+	videoType := c.Query("video_type")
+	videoTypeInt, _ := strconv.Atoi(videoType)
+	collects, err := s.CollectService.GetCollectByUser(openID, int32(videoTypeInt))
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
