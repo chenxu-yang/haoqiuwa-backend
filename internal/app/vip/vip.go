@@ -1,6 +1,7 @@
 package vip
 
 import (
+	"gorm.io/gorm"
 	"time"
 	"wxcloudrun-golang/internal/pkg/model"
 )
@@ -20,6 +21,16 @@ func NewService() *Service {
 // GetRemainingCount 获取剩余次数
 func (s *Service) GetRemainingCount(openID string) (int32, error) {
 	vip, err := s.VipDao.GetByOpenID(openID)
+	if err == gorm.ErrRecordNotFound {
+		_, err = s.VipDao.Create(&model.Vip{
+			OpenID: openID,
+			Count:  0,
+		})
+		if err != nil {
+			return 0, err
+		}
+		return 0, nil
+	}
 	if err != nil {
 		return 0, err
 	}
@@ -51,6 +62,11 @@ func (s *Service) CreateOrder(openID string, orderType int32, cost float64, coun
 		CreatedTime: time.Now(),
 		UpdatedTime: time.Now(),
 	})
+	if err != nil {
+		return 0, err
+	}
+	// add count
+	_, err = s.VipDao.UpdateCountByOpenID(openID, count)
 	if err != nil {
 		return 0, err
 	}
