@@ -20,7 +20,8 @@ func NewService() *Service {
 	}
 }
 
-func (s *Service) ToggleCollectVideo(openID string, fileID string, picURL string) (*model.Collect, error) {
+func (s *Service) ToggleCollectVideo(openID string, fileID string, picURL string, videoType int32) (*model.Collect,
+	error) {
 	// 查询是否已经收藏过
 	collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, FileID: fileID})
 	fmt.Println(collects)
@@ -39,6 +40,7 @@ func (s *Service) ToggleCollectVideo(openID string, fileID string, picURL string
 		OpenID:      openID,
 		FileID:      fileID,
 		PicURL:      picURL,
+		VideoType:   videoType,
 		Status:      1,
 		CreatedTime: time.Now(),
 		UpdatedTime: time.Now(),
@@ -49,8 +51,11 @@ func (s *Service) ToggleCollectVideo(openID string, fileID string, picURL string
 	return collect, nil
 }
 
-func (s *Service) GetCollectByUser(userOpenID string) ([]model.Collect, error) {
-	collects, err := s.CollectDao.Gets(&model.Collect{OpenID: userOpenID, Status: 1})
+func (s *Service) GetCollectByUser(userOpenID string, videoType int32) ([]model.Collect, error) {
+	if videoType == 0 {
+		videoType = 1
+	}
+	collects, err := s.CollectDao.Gets(&model.Collect{OpenID: userOpenID, Status: 1, VideoType: videoType})
 	if err != nil {
 		return nil, err
 	}
@@ -90,8 +95,8 @@ func (s *Service) GetUserDownload(openID string) (int32, error) {
 	return int32(len(data)), nil
 }
 
-func (s *Service) GetUserDownloads(openID string) ([]model.UserEvent, error) {
-	data, err := s.UserEventDao.Gets(&model.UserEvent{OpenID: openID, EventType: 2})
+func (s *Service) GetUserDownloads(openID string, videoType int32) ([]model.UserEvent, error) {
+	data, err := s.UserEventDao.Gets(&model.UserEvent{OpenID: openID, EventType: 2, VideoType: videoType})
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

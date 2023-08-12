@@ -22,7 +22,7 @@ func (s *Service) ToggleCollectVideo(c *gin.Context) {
 		c.JSON(400, err.Error())
 		return
 	}
-	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, newCollect.FileID, newCollect.PicURL)
+	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, newCollect.FileID, newCollect.PicURL, newCollect.VideoType)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -52,7 +52,16 @@ func (s *Service) GetUserDownloads(c *gin.Context) {
 		c.JSON(400, "请先登录")
 		return
 	}
-	data, err := s.CollectService.GetUserDownloads(openID)
+	// get video_type from req.body
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	eventType := model.UserEvent{}
+	err := json.Unmarshal(body, &eventType)
+	if err != nil {
+		c.JSON(400, err.Error())
+		return
+	}
+
+	data, err := s.CollectService.GetUserDownloads(openID, eventType.VideoType)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -102,7 +111,10 @@ func (s *Service) CollectUserEvent(c *gin.Context) {
 // GetCollectVideos 获取用户收藏的视频
 func (s *Service) GetCollectVideos(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
-	collects, err := s.CollectService.GetCollectByUser(openID)
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	eventType := model.UserEvent{}
+	err := json.Unmarshal(body, &eventType)
+	collects, err := s.CollectService.GetCollectByUser(openID, eventType.VideoType)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

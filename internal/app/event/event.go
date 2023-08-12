@@ -12,7 +12,6 @@ import (
 var cosLink = "cloud://prod-2gicsblt193f5dc8.7072-prod-2gicsblt193f5dc8-1318337180/"
 
 type Service struct {
-	EventDao   *model.Event
 	VideoDao   *model.Video
 	CourtDao   *model.Court
 	CollectDao *model.Collect
@@ -20,7 +19,9 @@ type Service struct {
 
 func NewService() *Service {
 	return &Service{
-		EventDao: &model.Event{},
+		VideoDao:   &model.Video{},
+		CourtDao:   &model.Court{},
+		CollectDao: &model.Collect{},
 	}
 }
 
