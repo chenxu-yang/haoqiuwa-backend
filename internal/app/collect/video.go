@@ -2,6 +2,7 @@ package collect
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"wxcloudrun-golang/internal/pkg/model"
 )
@@ -98,11 +99,39 @@ func (s *Service) GetUserDownload(openID string) (int32, error) {
 	return int32(len(data)), nil
 }
 
-func (s *Service) GetUserDownloads(openID string, videoType int32) ([]model.UserEvent, error) {
+func (s *Service) GetUserDownloads(openID string, videoType int32) ([]model.Collect, error) {
 	data, err := s.UserEventDao.Gets(&model.UserEvent{OpenID: openID, EventType: 2, VideoType: videoType})
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
-	return data, nil
+	var result []model.Collect
+	for _, v := range data {
+		result = append(result, model.Collect{
+			ID:          v.ID,
+			OpenID:      v.OpenID,
+			FileID:      v.FileID,
+			PicURL:      videoToPicLink(v.FileID),
+			VideoType:   v.VideoType,
+			CreatedTime: v.CreatedTime,
+			UpdatedTime: v.UpdatedTime,
+		})
+	}
+	return result, nil
+}
+
+// get pic link by video link, video link like "highlight/2021/01/01/vxxx.
+//mp4" and pic link like "highlight/2021/01/01/pxxx.PNG"
+func videoToPicLink(videoLink string) string {
+	// 分割视频链接，获取最后一部分
+	parts := strings.Split(videoLink, "/")
+	lastPart := parts[len(parts)-1]
+	// 替换vxxx为pxxx
+	lastPart = strings.Replace(lastPart, "v", "p", 1)
+	// 替换.mp4为.PNG
+	lastPart = strings.Replace(lastPart, ".MP4", ".png", 1)
+	// 重新拼接链接
+	parts[len(parts)-1] = lastPart
+	picLink := strings.Join(parts, "/")
+	return picLink
 }
