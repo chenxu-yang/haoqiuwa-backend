@@ -30,6 +30,7 @@ func main() {
 	router.GET("/vip/orders", service.GetVipOrders)
 	router.POST("/vip/orders", service.CreateVipOrder)
 	router.POST("/vip/count", service.UpdateVipCount)
+	router.POST("/vip/pay", service.UnifiedOrder)
 
 	// 视频页面
 	router.GET("/events", service.GetEvents)
