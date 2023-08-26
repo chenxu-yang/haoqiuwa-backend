@@ -46,6 +46,18 @@ func (s *Service) GetUserDownload(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(data, err))
 }
 
+// GetUserDownloadStatus 获取用户下载状态
+func (s *Service) GetUserDownloadStatus(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	videoID := c.Query("file_id")
+	data, err := s.CollectService.GetUserDownloadStatus(openID, videoID)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(data, err))
+}
+
 // GetUserDownloads 获取用户下载记录
 func (s *Service) GetUserDownloads(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")

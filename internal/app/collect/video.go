@@ -99,6 +99,15 @@ func (s *Service) GetUserDownload(openID string) (int32, error) {
 	return int32(len(data)), nil
 }
 
+func (s *Service) GetUserDownloadStatus(openID string, fileID string) (bool, error) {
+	data, err := s.UserEventDao.Gets(&model.UserEvent{OpenID: openID, FileID: fileID})
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+	return len(data) > 0, nil
+}
+
 func (s *Service) GetUserDownloads(openID string, videoType int32) ([]model.Collect, error) {
 	data, err := s.UserEventDao.Gets(&model.UserEvent{OpenID: openID, EventType: 2, VideoType: videoType})
 	if err != nil {

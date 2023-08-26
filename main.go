@@ -24,6 +24,7 @@ func main() {
 	router.GET("/user/download", service.GetUserDownload)
 	router.GET("/user/downloads", service.GetUserDownloads)
 	router.POST("/survey", service.CollectSurvey)
+	router.GET("/user/download_status", service.GetUserDownloadStatus)
 
 	// 付费相关
 	router.GET("/vip/count", service.GetVipCount)
