@@ -64,6 +64,10 @@ func (s *Service) GetCollectByUser(userOpenID string, videoType int32) ([]model.
 	if err != nil {
 		return nil, err
 	}
+	// order by created time desc
+	sort.Slice(collects, func(i, j int) bool {
+		return collects[i].CreatedTime.After(collects[j].CreatedTime)
+	})
 	return collects, nil
 }
 
