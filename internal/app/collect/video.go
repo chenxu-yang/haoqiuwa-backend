@@ -2,6 +2,7 @@ package collect
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 	"wxcloudrun-golang/internal/pkg/model"
@@ -126,6 +127,10 @@ func (s *Service) GetUserDownloads(openID string, videoType int32) ([]model.Coll
 			UpdatedTime: v.UpdatedTime,
 		})
 	}
+	// order by created time desc
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].CreatedTime.After(result[j].CreatedTime)
+	})
 	return result, nil
 }
 
