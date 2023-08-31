@@ -74,13 +74,67 @@ func (s *Service) GetEvents(courtID string, date int32) ([]Event, error) {
 }
 
 func (s *Service) GetVideos(date int32, courtID int32, hour int32, openID string) (*EventDetail, error) {
+	result, err := s.getVideosByType(date, courtID, hour, openID, 1)
+	return result, err
+}
+
+func (s *Service) GetRecord(date int32, courtID int32, hour int32, openID string) (*EventDetail, error) {
+	result, err := s.getVideosByType(date, courtID, hour, openID, 2)
+	return result, err
+}
+
+func (s *Service) StoreVideo(video *model.Video) (string, error) {
+	// get file path
+	var typeString string
+	if video.Type == 1 {
+		typeString = "highlight"
+	} else if video.Type == 2 {
+		typeString = "record"
+	} else if video.Type == 3 {
+		typeString = "match"
+	} else {
+		typeString = "match_record"
+	}
+	filePath := fmt.Sprintf("%s%s/court%d/%d/%s", cosLink, typeString, video.Court, video.Date, video.FileName)
+	record, err := s.VideoDao.Create(&model.Video{
+		FilePath:    filePath,
+		Date:        video.Date,
+		Hour:        video.Hour,
+		FileName:    video.FileName,
+		Type:        video.Type,
+		Court:       video.Court,
+		CreatedTime: time.Now(),
+		UpdatedTime: time.Now(),
+	})
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+	return record.FilePath, nil
+}
+
+// GetMatchRecords 获取比赛录像
+func (s *Service) GetMatchRecords(date int32, courtID int32, hour int32, openID string) (*EventDetail, error) {
+	result, err := s.getVideosByType(date, courtID, hour, openID, 3)
+	return result, err
+}
+
+// GetMatchHighlights 获取比赛集锦
+func (s *Service) GetMatchHighlights(date int32, courtID int32, hour int32, openID string) (*EventDetail, error) {
+	result, err := s.getVideosByType(date, courtID, hour, openID, 4)
+	return result, err
+}
+
+// getVideosByType
+func (s *Service) getVideosByType(date int32, courtID int32, hour int32, openID string,
+	videoType int32) (*EventDetail, error) {
 	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
-	videos, err := s.VideoDao.GetVideos(date, courtID, hour, 1)
+	videos, err := s.VideoDao.GetVideos(date, courtID, hour, videoType)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	pictures, err := s.VideoDao.GetPictures(date, courtID, hour, 1)
+	pictures, err := s.VideoDao.GetPictures(date, courtID, hour, videoType)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -161,121 +215,4 @@ func (s *Service) GetVideos(date int32, courtID int32, hour int32, openID string
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
 	}
 	return eventDetail, nil
-}
-
-func (s *Service) GetRecord(date int32, courtID int32, hour int32, openID string) (*EventDetail, error) {
-	videos, err := s.VideoDao.GetVideos(date, courtID, hour, 2)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	pictures, err := s.VideoDao.GetPictures(date, courtID, hour, 2)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
-	firstHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "00"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"15"), Videos: []*Video{}}
-	secondHalfVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "15"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"30"), Videos: []*Video{}}
-	thirdVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "30"), EndTime: fmt.Sprintf("%d:%s", hour,
-		"45"), Videos: []*Video{}}
-	fourthVideo := &VideoSeries{StartTime: fmt.Sprintf("%d:%s", hour, "45"), EndTime: fmt.Sprintf("%d:%s", hour+1,
-		"00"), Videos: []*Video{}}
-	for index := range videos {
-		isCollected := false
-		collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: videos[index].FilePath})
-		if err != nil {
-			return nil, err
-		}
-		if len(collects) > 0 {
-			isCollected = true
-		}
-		links := strings.Split(videos[index].FileName, "-")
-		minuteString := strings.Split(links[1], ".")[0]
-		minute, _ := strconv.Atoi(minuteString)
-		if minute <= 15 {
-			firstHalfVideo.Videos = append(firstHalfVideo.Videos, &Video{
-				IsCollected: isCollected,
-				Url:         videos[index].FilePath,
-				PicUrl:      pictures[index].FilePath,
-			})
-		} else if minute > 15 && minute <= 30 {
-			secondHalfVideo.Videos = append(secondHalfVideo.Videos, &Video{
-				IsCollected: isCollected,
-				Url:         videos[index].FilePath,
-				PicUrl:      pictures[index].FilePath,
-			})
-		} else if minute > 30 && minute <= 45 {
-			thirdVideo.Videos = append(thirdVideo.Videos, &Video{
-				IsCollected: isCollected,
-				Url:         videos[index].FilePath,
-				PicUrl:      pictures[index].FilePath,
-			})
-		} else {
-			fourthVideo.Videos = append(fourthVideo.Videos, &Video{
-				IsCollected: isCollected,
-				Url:         videos[index].FilePath,
-				PicUrl:      pictures[index].FilePath,
-			})
-		}
-	}
-	// if date is not today, return
-	if time.Now().Format("20060102") != strconv.Itoa(int(date)) {
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo, thirdVideo, firstHalfVideo, secondHalfVideo)
-
-		return eventDetail, nil
-	}
-	if len(fourthVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) || (time.Now().Hour() == int(hour)+1 && time.Now().Minute() < 10) {
-			fourthVideo.Status = 1
-		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, fourthVideo)
-	}
-	if len(thirdVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) && time.Now().Minute() < 55 && len(fourthVideo.Videos) == 0 {
-			thirdVideo.Status = 1
-		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, thirdVideo)
-	}
-	if len(secondHalfVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) && time.Now().Minute() < 40 && len(thirdVideo.Videos) == 0 {
-			secondHalfVideo.Status = 1
-		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, secondHalfVideo)
-	}
-	if len(firstHalfVideo.Videos) > 0 {
-		if time.Now().Hour() == int(hour) && time.Now().Minute() < 25 && len(secondHalfVideo.Videos) == 0 {
-			firstHalfVideo.Status = 1
-		}
-		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
-	}
-	return eventDetail, nil
-}
-
-func (s *Service) StoreVideo(video *model.Video) (string, error) {
-	// get file path
-	var typeString string
-	if video.Type == 1 {
-		typeString = "highlight"
-	} else {
-		typeString = "record"
-	}
-	filePath := fmt.Sprintf("%s%s/court%d/%d/%s", cosLink, typeString, video.Court, video.Date, video.FileName)
-	record, err := s.VideoDao.Create(&model.Video{
-		FilePath:    filePath,
-		Date:        video.Date,
-		Hour:        video.Hour,
-		FileName:    video.FileName,
-		Type:        video.Type,
-		Court:       video.Court,
-		CreatedTime: time.Now(),
-		UpdatedTime: time.Now(),
-	})
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-	return record.FilePath, nil
 }
