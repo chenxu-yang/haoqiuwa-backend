@@ -3,7 +3,6 @@ package event
 import (
 	"fmt"
 	"log"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -125,23 +124,16 @@ func (s *Service) getMatchVideosByType(date int32, courtID int32, hour int32, op
 	videoType int32) (*EventDetail,
 	error) {
 	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
-	videos, err := s.VideoDao.GetVideos(date, courtID, hour, videoType)
+	videos, err := s.VideoDao.GetMatchVideos(date, courtID, videoType)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	pictures, err := s.VideoDao.GetPictures(date, courtID, hour, videoType)
+	pictures, err := s.VideoDao.GetMatchPictures(date, courtID, videoType)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	// sort videos by createdTime desc
-	sort.Slice(videos, func(i, j int) bool {
-		return videos[i].CreatedTime.After(videos[j].CreatedTime)
-	})
-	sort.Slice(pictures, func(i, j int) bool {
-		return pictures[i].CreatedTime.After(pictures[j].CreatedTime)
-	})
 	results := &VideoSeries{Videos: []*Video{}}
 	for index := range videos {
 		isCollected := false
