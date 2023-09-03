@@ -3,6 +3,7 @@ package event
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -47,6 +48,7 @@ type Video struct {
 	IsCollected bool   `json:"is_collected"`
 	Url         string `json:"url"`
 	PicUrl      string `json:"pic_url"`
+	VideoName   string `json:"video_name"`
 }
 
 func (s *Service) GetEvents(courtID string, date int32) ([]Event, error) {
@@ -103,6 +105,7 @@ func (s *Service) StoreVideo(video *model.Video) (string, error) {
 		FileName:    video.FileName,
 		Type:        video.Type,
 		Court:       video.Court,
+		VideoName:   video.VideoName,
 		CreatedTime: time.Now(),
 		UpdatedTime: time.Now(),
 	})
@@ -115,13 +118,54 @@ func (s *Service) StoreVideo(video *model.Video) (string, error) {
 
 // GetMatchRecords 获取比赛录像
 func (s *Service) GetMatchRecords(date int32, courtID int32, hour int32, openID string) (*EventDetail, error) {
-	result, err := s.getVideosByType(date, courtID, hour, openID, 3)
-	return result, err
+	return s.getMatchVideosByType(date, courtID, hour, openID, 4)
+}
+
+func (s *Service) getMatchVideosByType(date int32, courtID int32, hour int32, openID string,
+	videoType int32) (*EventDetail,
+	error) {
+	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
+	videos, err := s.VideoDao.GetVideos(date, courtID, hour, videoType)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	pictures, err := s.VideoDao.GetPictures(date, courtID, hour, videoType)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	// sort videos by createdTime desc
+	sort.Slice(videos, func(i, j int) bool {
+		return videos[i].CreatedTime.After(videos[j].CreatedTime)
+	})
+	sort.Slice(pictures, func(i, j int) bool {
+		return pictures[i].CreatedTime.After(pictures[j].CreatedTime)
+	})
+	results := &VideoSeries{Videos: []*Video{}}
+	for index := range videos {
+		isCollected := false
+		collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: videos[index].FilePath})
+		if err != nil {
+			return nil, err
+		}
+		if len(collects) > 0 {
+			isCollected = true
+		}
+		results.Videos = append(results.Videos, &Video{
+			IsCollected: isCollected,
+			Url:         videos[index].FilePath,
+			PicUrl:      pictures[index].FilePath,
+			VideoName:   videos[index].VideoName,
+		})
+	}
+	eventDetail.VideoSeries = append(eventDetail.VideoSeries, results)
+	return eventDetail, nil
 }
 
 // GetMatchHighlights 获取比赛集锦
 func (s *Service) GetMatchHighlights(date int32, courtID int32, hour int32, openID string) (*EventDetail, error) {
-	result, err := s.getVideosByType(date, courtID, hour, openID, 4)
+	result, err := s.getMatchVideosByType(date, courtID, hour, openID, 3)
 	return result, err
 }
 

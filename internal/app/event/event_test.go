@@ -98,6 +98,35 @@ func TestService_GetRecords(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GetMatchHighlights(t *testing.T) {
+	type args struct {
+		courtID int32
+		hour    int32
+		openID  string
+		date    int32
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "case1",
+			args:    args{courtID: 1, hour: 16, openID: "oueu25X3eun7K9zJ6UpCUQiEO0yc", date: 20230902},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := s.GetMatchHighlights(tt.args.date, tt.args.courtID, tt.args.hour, tt.args.openID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetVideos() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
 func TestService_StoreVideo(t *testing.T) {
 	type args struct {
 		video *model.Video
