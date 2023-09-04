@@ -105,6 +105,7 @@ func (s *Service) StoreVideo(video *model.Video) (string, error) {
 		Type:        video.Type,
 		Court:       video.Court,
 		VideoName:   video.VideoName,
+		FileType:    video.FileType,
 		CreatedTime: time.Now(),
 		UpdatedTime: time.Now(),
 	})

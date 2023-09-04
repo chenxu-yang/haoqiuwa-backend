@@ -15,6 +15,7 @@ type Video struct {
 	Hour        int32     `gorm:"column:hour" json:"hour"`
 	FileName    string    `gorm:"column:file_name" json:"file_name"`
 	VideoName   string    `gorm:"column:video_name" json:"video_name"`
+	FileType    int32     `gorm:"column:file_type" json:"file_type"`
 	CreatedTime time.Time `gorm:"column:created_time" json:"created_time"`
 	UpdatedTime time.Time `gorm:"column:updated_time" json:"updated_time"`
 }
