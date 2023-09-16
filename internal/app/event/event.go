@@ -125,12 +125,12 @@ func (s *Service) getMatchVideosByType(date int32, courtID int32, hour int32, op
 	videoType int32) (*EventDetail,
 	error) {
 	eventDetail := &EventDetail{VideoSeries: []*VideoSeries{}}
-	videos, err := s.VideoDao.GetMatchVideos(date, courtID, videoType)
+	videos, err := s.VideoDao.GetMatchVideos(courtID, videoType)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	pictures, err := s.VideoDao.GetMatchPictures(date, courtID, videoType)
+	pictures, err := s.VideoDao.GetMatchPictures(courtID, videoType)
 	if err != nil {
 		log.Println(err)
 		return nil, err

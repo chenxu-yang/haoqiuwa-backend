@@ -76,19 +76,19 @@ func (obj *Video) GetPictures(date int32, courtID int32, hour int32, videoType i
 	return results, err
 }
 
-func (obj *Video) GetMatchVideos(date int32, courtID int32, videoType int32) ([]*Video, error) {
+func (obj *Video) GetMatchVideos(courtID int32, videoType int32) ([]*Video, error) {
 	results := make([]*Video, 0)
 	err := db.Get().Table(obj.TableName()).Where(
-		"date = ? and court = ? and file_name like 'v%' and type = ?", date,
+		"court = ? and file_name like 'v%' and type = ?",
 		courtID,
 		videoType).Order("created_time desc").Find(&results).Error
 	return results, err
 }
 
-func (obj *Video) GetMatchPictures(date int32, courtID int32, videoType int32) ([]*Video, error) {
+func (obj *Video) GetMatchPictures(courtID int32, videoType int32) ([]*Video, error) {
 	results := make([]*Video, 0)
 	err := db.Get().Table(obj.TableName()).Debug().Where(
-		"date = ? and court = ? and file_name like 'p%'and type = ?", date,
+		"court = ? and file_name like 'p%'and type = ?",
 		courtID,
 		videoType).Order("created_time desc").Find(&results).Error
 	return results, err
