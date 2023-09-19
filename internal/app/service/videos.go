@@ -128,3 +128,24 @@ func (s *Service) GetMatchRecords(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(data, err))
 
 }
+
+// GetAIContents 获取比赛录像
+func (s *Service) GetAIContents(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	courtID := c.Query("court")
+	date := c.Query("date")
+	hour := c.Query("hour")
+	if date == "" {
+		date = time.Now().Format("20060102")
+	}
+	hourInt, _ := strconv.Atoi(hour)
+	dateInt, _ := strconv.Atoi(date)
+	courtIDInt, _ := strconv.Atoi(courtID)
+	data, err := s.EventService.GetAIContent(int32(dateInt), int32(courtIDInt), int32(hourInt), openID)
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(data, err))
+
+}

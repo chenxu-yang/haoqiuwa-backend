@@ -157,3 +157,37 @@ func TestService_StoreVideo(t *testing.T) {
 		})
 	}
 }
+
+func TestService_GetAIContent(t *testing.T) {
+	type args struct {
+		date    int32
+		courtID int32
+		hour    int32
+		openID  string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "case1",
+			args: args{
+				date:    20230919,
+				courtID: 1,
+				hour:    9,
+				openID:  "oueu25X3eun7K9zJ6UpCUQiEO0yc",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := s.GetAIContent(tt.args.date, tt.args.courtID, tt.args.hour, tt.args.openID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetAIContent() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}

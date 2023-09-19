@@ -39,6 +39,7 @@ func main() {
 	router.GET("/records", service.GetRecords)
 	router.GET("/match/highlights", service.GetMatchHighlights)
 	router.GET("/match/records", service.GetMatchRecords)
+	router.GET("/aigc/contents", service.GetAIContents)
 
 	// 视频处理
 	router.POST("/videos", service.StoreVideo)

@@ -36,6 +36,11 @@ type EventDetail struct {
 	VideoSeries []*VideoSeries `json:"video_series"`
 }
 
+type AIContent struct {
+	Videos []*Video `json:"videos"`
+	Pics   []*Video `json:"pics"`
+}
+
 type VideoSeries struct {
 	StartTime string   `json:"start_time"`
 	EndTime   string   `json:"end_time"`
@@ -53,7 +58,6 @@ type Video struct {
 func (s *Service) GetEvents(courtID string, date int32) ([]Event, error) {
 	// get today's date like 20210101
 	results := make([]Event, 0)
-	// get cos links
 	hours, err := s.VideoDao.GetDistinctHours(date)
 	if err != nil {
 		log.Println(err)
@@ -93,8 +97,12 @@ func (s *Service) StoreVideo(video *model.Video) (string, error) {
 		typeString = "record"
 	} else if video.Type == 3 {
 		typeString = "match"
-	} else {
+	} else if video.Type == 4 {
 		typeString = "match_record"
+	} else if video.Type == 5 {
+		typeString = "aigc_video"
+	} else if video.Type == 6 {
+		typeString = "aigc_picture"
 	}
 	filePath := fmt.Sprintf("%s%s/court%d/%d/%s", cosLink, typeString, video.Court, video.Date, video.FileName)
 	record, err := s.VideoDao.Create(&model.Video{
@@ -252,4 +260,56 @@ func (s *Service) getVideosByType(date int32, courtID int32, hour int32, openID 
 		eventDetail.VideoSeries = append(eventDetail.VideoSeries, firstHalfVideo)
 	}
 	return eventDetail, nil
+}
+
+func (s *Service) GetAIContent(date int32, courtID int32, hour int32, openID string) (*AIContent,
+	error) {
+	content := &AIContent{
+		Videos: []*Video{},
+		Pics:   []*Video{},
+	}
+	videos, err := s.VideoDao.GetVideos(date, courtID, hour, 5)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	pictures, err := s.VideoDao.GetPictures(date, courtID, hour, 5)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	for index := range videos {
+		isCollected := false
+		collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, Status: 1, FileID: videos[index].FilePath})
+		if err != nil {
+			return nil, err
+		}
+		if len(collects) > 0 {
+			isCollected = true
+		}
+		content.Videos = append(content.Videos, &Video{
+			IsCollected: isCollected,
+			Url:         videos[index].FilePath,
+			PicUrl:      pictures[index].FilePath,
+			VideoName:   videos[index].VideoName,
+		})
+	}
+	aiPics, err := s.VideoDao.GetVideos(date, courtID, hour, 6)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	for index := range aiPics {
+		content.Pics = append(content.Pics, &Video{
+			PicUrl: aiPics[index].FilePath,
+		})
+	}
+	// 倒序排列 pics 和 video
+	for i, j := 0, len(content.Pics)-1; i < j; i, j = i+1, j-1 {
+		content.Pics[i], content.Pics[j] = content.Pics[j], content.Pics[i]
+	}
+	for i, j := 0, len(content.Videos)-1; i < j; i, j = i+1, j-1 {
+		content.Videos[i], content.Videos[j] = content.Videos[j], content.Videos[i]
+	}
+	return content, nil
 }

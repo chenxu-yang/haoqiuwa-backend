@@ -53,7 +53,8 @@ func (obj *Video) Delete(video *Video) error {
 func (obj *Video) GetDistinctHours(date int32) ([]int32, error) {
 	results := make([]int32, 0)
 	// get hours order by desc
-	err := db.Get().Table(obj.TableName()).Where("date = ?", date).Order("hour desc").Pluck("distinct hour",
+	err := db.Get().Table(obj.TableName()).Where("date = ? and type in (1,2)",
+		date).Order("hour desc").Pluck("distinct hour",
 		&results).Error
 	return results, err
 }
