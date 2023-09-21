@@ -173,9 +173,9 @@ func TestService_GetAIContent(t *testing.T) {
 		{
 			name: "case1",
 			args: args{
-				date:    20230919,
-				courtID: 1,
-				hour:    9,
+				date:    20230920,
+				courtID: 10,
+				hour:    21,
 				openID:  "oueu25X3eun7K9zJ6UpCUQiEO0yc",
 			},
 			wantErr: false,

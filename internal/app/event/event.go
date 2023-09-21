@@ -294,13 +294,14 @@ func (s *Service) GetAIContent(date int32, courtID int32, hour int32, openID str
 			VideoName:   videos[index].VideoName,
 		})
 	}
-	aiPics, err := s.VideoDao.GetVideos(date, courtID, hour, 6)
+	aiPics, err := s.VideoDao.GetPictures(date, courtID, hour, 6)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 	for index := range aiPics {
 		content.Pics = append(content.Pics, &Video{
+			Url:    aiPics[index].FilePath,
 			PicUrl: aiPics[index].FilePath,
 		})
 	}
